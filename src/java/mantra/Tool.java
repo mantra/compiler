@@ -34,7 +34,7 @@ public class Tool {
 	public static Option[] optionDefs = {
     	new Option("compileOnly",		"-c", OptionArgType.STRING, "compile only"),
 		new Option("warnings_are_errors", "-Werror", "treat warnings as errors"),
-		new Option("msgFormat",			"-message-format", OptionArgType.STRING, "specify output style for messages in antlr, gnu, vs2005"),
+		new Option("msgFormat",			"-message-format", OptionArgType.STRING, "specify output style for messages in mantra, gnu, vs2005"),
 	};
 
 	// option fields

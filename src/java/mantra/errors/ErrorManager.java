@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public class ErrorManager {
-	public static final String FORMATS_DIR = "org/antlr/v4/tool/templates/messages/formats/";
+	public static final String FORMATS_DIR = "mantra/templates/messages/formats/";
 
 	public Tool tool;
 	public int errors;
