@@ -1,3 +1,8 @@
+/**
+ * Significant portions of this file and error message infrastructure copied
+ * from ANTLR v4 which has BSD license, copyright by Terence Parr and Sam
+ * Harwell.
+ */
 package mantra;
 
 import mantra.errors.ErrorManager;
