@@ -1,0 +1,7 @@
+location(file, line, column) ::= "<file>(<line>,<column>)"
+
+message(id, text) ::= "error <id> : <text>"
+
+report(location, message, type) ::= "<location> : <type> <message.id> : <message.text>"
+
+wantsSingleLineMessage() ::= "true"

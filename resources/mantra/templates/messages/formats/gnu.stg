@@ -1,0 +1,11 @@
+/*
+ This file contains the format that mimicks GCC output.
+*/
+
+location(file, line, column) ::= "<file>:<line>:"
+
+message(id, text) ::= "<text> (<id>)"
+
+report(location, message, type) ::= "<location> <type>: <message>"
+
+wantsSingleLineMessage() ::= "true"
