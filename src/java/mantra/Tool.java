@@ -10,11 +10,13 @@ import mantra.errors.ErrorManager;
 import mantra.errors.ErrorType;
 import mantra.errors.MantraMessage;
 import mantra.errors.MantraToolListener;
+import mantra.semantics.DefScopesAndSymbols;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -96,6 +98,10 @@ public class Tool {
 
 	public void processMantraFile(String fileName) throws IOException {
 		ParseTree tree = parseMantraFile(fileName);
+
+		// def scopes and symbols
+		DefScopesAndSymbols def = new DefScopesAndSymbols();
+		ParseTreeWalker.DEFAULT.walk(def, tree);
 	}
 
 	public ParseTree parseMantraFile(String fileName) throws IOException {

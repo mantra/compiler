@@ -1,15 +1,22 @@
+/** Grammar for the Mantra language.
+ *
+ *  LABELS (to make applications derived from grammar easier):
+ *
+ *  Label scope identifies which node holds ref to Scope object
+ *  Label name identifies name of scope like class name
+ */
 grammar Mantra;
 
 @header {package mantra;}
 
-compilationUnit : packageDef? (function|clazz|interfaze|enumb)* EOF ;
+compilationUnit : packageDef? (function|clazz|interfaze|enumDef)* EOF ;
 
 packageDef
-	:	'package' packageName
+	:	scope='package' packageName
 	;
 
 clazz
-    :   ('api'|'abstract')* 'class' ID typeArgumentNames? ('extends' type)? ('implements' type (',' type)*)?
+    :   ('api'|'abstract')* scope='class' name=ID typeArgumentNames? ('extends' type)? ('implements' type (',' type)*)?
         '{'
             clazzMember*
             function*
@@ -17,15 +24,15 @@ clazz
     ;
 
 interfaze
-    :   'api'? 'interface' ID ('extends' type (',' type)*)?
+    :   'api'? scope='interface' name=ID ('extends' type (',' type)*)?
         '{'
 //            field*
             functionHead*
         '}'
     ;
 
-enumb
-    :   'enum' ID '{' ID (',' ID)* '}'
+enumDef
+	:   scope='enum' name=ID '{' ID (',' ID)* '}'
     ;
 
 clazzMember
@@ -33,7 +40,7 @@ clazzMember
     |	interfaze
     |	field
     |	memberFunction
-    |   enumb
+    |   enumDef
     ;
 
 field:  ('static'|'api')? vardecl
@@ -52,7 +59,7 @@ function
     ;
 
 functionHead
-    :   'def' ID functionSignature
+    :   scope='def' name=ID functionSignature
     ;
 
 functionSignature
@@ -160,7 +167,7 @@ builtInType
 		typeArguments?
 	;
 
-block : '{' stat* '}' ;
+block : scope='{' stat* '}' ;
 
 stat:   lvalue (',' lvalue)* assignmentOperator expression
     |   expression // calls, pipelines, ...
@@ -182,7 +189,7 @@ stat:   lvalue (',' lvalue)* assignmentOperator expression
     |   clazz
     |   interfaze
     |   function
-    |   enumb
+    |   enumDef
     ;
 
 switchCase

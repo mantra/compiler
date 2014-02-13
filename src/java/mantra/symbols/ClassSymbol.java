@@ -1,5 +1,7 @@
 package mantra.symbols;
 
+import mantra.misc.Utils;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -36,6 +38,6 @@ public class ClassSymbol extends ScopedSymbol implements Type {
     public Map<String, Symbol> getMembers() { return members; }
     public String toString() {
         return "class "+name+":{"+
-               stripBrackets(members.keySet().toString())+"}";
+               Utils.stripBrackets(members.keySet().toString())+"}";
     }
 }

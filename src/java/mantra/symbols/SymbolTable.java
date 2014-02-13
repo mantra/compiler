@@ -1,35 +1,43 @@
 package mantra.symbols;
 
+import static mantra.symbols.GlobalScope.GLOBALS;
+
 public class SymbolTable {
-	public GlobalScope globals;
+	public PackageSymbol defaultPackage;
 	public ClassSymbol objectRoot;
 
     public SymbolTable() { initTypeSystem(); }
 
     protected void initTypeSystem() {
-		globals = new GlobalScope();
-		objectRoot = new ClassSymbol("Object", globals, null);
-		globals.define(objectRoot);
+		defaultPackage = new PackageSymbol("main", GLOBALS);
+		GLOBALS.define(defaultPackage);
+
+		// define mantra::lang
+		PackageSymbol mantraPackage = new PackageSymbol("mantra", GLOBALS);
+		PackageSymbol mantraLangPackage = new PackageSymbol("lang", mantraPackage);
+		objectRoot = new ClassSymbol("Object", mantraLangPackage, null);
+		GLOBALS.define(objectRoot);
+
         /*
         FunctionSymbol hashCode =
            new FunctionSymbol("hashCode",new BuiltInTypeSymbol("int"),objectRoot);
         objectRoot.define(hashCode);
          */
 
-		globals.define(new BuiltInTypeSymbol("boolean"));
-		globals.define(new BuiltInTypeSymbol("char"));
-		globals.define(new BuiltInTypeSymbol("byte"));
-		globals.define(new BuiltInTypeSymbol("short"));
-		globals.define(new BuiltInTypeSymbol("int"));
-		globals.define(new BuiltInTypeSymbol("long"));
-		globals.define(new BuiltInTypeSymbol("float"));
-		globals.define(new BuiltInTypeSymbol("double"));
+		GLOBALS.define(new BuiltInTypeSymbol("boolean"));
+		GLOBALS.define(new BuiltInTypeSymbol("char"));
+		GLOBALS.define(new BuiltInTypeSymbol("byte"));
+		GLOBALS.define(new BuiltInTypeSymbol("short"));
+		GLOBALS.define(new BuiltInTypeSymbol("int"));
+		GLOBALS.define(new BuiltInTypeSymbol("long"));
+		GLOBALS.define(new BuiltInTypeSymbol("float"));
+		GLOBALS.define(new BuiltInTypeSymbol("double"));
 
-		globals.define(new BuiltInTypeSymbol("string"));
-		globals.define(new BuiltInTypeSymbol("map"));
-		globals.define(new BuiltInTypeSymbol("list"));
-		globals.define(new BuiltInTypeSymbol("llist"));
-		globals.define(new BuiltInTypeSymbol("set"));
+		GLOBALS.define(new BuiltInTypeSymbol("string"));
+		GLOBALS.define(new BuiltInTypeSymbol("map"));
+		GLOBALS.define(new BuiltInTypeSymbol("list"));
+		GLOBALS.define(new BuiltInTypeSymbol("llist"));
+		GLOBALS.define(new BuiltInTypeSymbol("set"));
 	}
 
     /** 'this' and 'super' need to know about enclosing class */
@@ -41,5 +49,5 @@ public class SymbolTable {
         return null;
     }
 
-    public String toString() { return globals.toString(); }
+    public String toString() { return GLOBALS.toString(); }
 }

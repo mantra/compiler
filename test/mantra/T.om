@@ -1,5 +1,8 @@
 package test
 
-class T {
+class T extends A {
 	var i : int
+	def f(x:int) : float {
+		return x*2.0
+	}
 }
