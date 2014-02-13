@@ -1,4 +1,4 @@
-package mantra;
+package mantra.errors;
 
 
 /** Defines behavior of object able to handle error messages from Mantra including

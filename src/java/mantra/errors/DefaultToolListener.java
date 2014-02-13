@@ -1,5 +1,6 @@
-package mantra;
+package mantra.errors;
 
+import mantra.Tool;
 import org.stringtemplate.v4.ST;
 
 public class DefaultToolListener implements MantraToolListener {

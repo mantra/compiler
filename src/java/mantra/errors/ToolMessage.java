@@ -1,7 +1,5 @@
 package mantra.errors;
 
-import mantra.MantraMessage;
-
 /** A generic message from the tool such as "file not found" type errors; there
  *  is no reason to create a special object for each error unlike the grammar
  *  errors, which may be rather complex.

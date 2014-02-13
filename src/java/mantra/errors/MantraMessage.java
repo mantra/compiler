@@ -1,6 +1,5 @@
-package mantra;
+package mantra.errors;
 
-import mantra.errors.ErrorType;
 import org.stringtemplate.v4.ST;
 
 import java.util.Arrays;

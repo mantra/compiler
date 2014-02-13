@@ -1,6 +1,5 @@
 package mantra.errors;
 
-import mantra.MantraMessage;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 

@@ -1,13 +1,22 @@
 /**
  * Significant portions of this file and error message infrastructure copied
  * from ANTLR v4 which has BSD license, copyright by Terence Parr and Sam
- * Harwell.
+ * Harwell. https://github.com/antlr/antlr4
  */
 package mantra;
 
+import mantra.errors.DefaultToolListener;
 import mantra.errors.ErrorManager;
 import mantra.errors.ErrorType;
+import mantra.errors.MantraMessage;
+import mantra.errors.MantraToolListener;
+import org.antlr.v4.runtime.ANTLRFileStream;
+import org.antlr.v4.runtime.ANTLRInputStream;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.tree.ParseTree;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +78,34 @@ public class Tool {
 	public static void main(String[] args) {
 		Tool antlr = new Tool(args);
 		if ( args.length == 0 ) { antlr.help(); antlr.exit(0); }
+		antlr.handleArgs();
+		antlr.processMantraFiles();
+	}
 
+	public void processMantraFiles() {
+		for (String f : mantraFiles) {
+			try {
+				processMantraFile(f);
+			}
+			catch (IOException ioe) {
+				//errMgr.toolError(ErrorType.CANNOT_WRITE_FILE);
+				ioe.printStackTrace(System.err);
+			}
+		}
+	}
+
+	public void processMantraFile(String fileName) throws IOException {
+		ParseTree tree = parseMantraFile(fileName);
+	}
+
+	public ParseTree parseMantraFile(String fileName) throws IOException {
+		ANTLRInputStream input = new ANTLRFileStream(fileName);
+		MantraLexer lexer = new MantraLexer(input);
+		CommonTokenStream tokens = new CommonTokenStream(lexer);
+		MantraParser parser = new MantraParser(tokens);
+		ParserRuleContext tree = parser.compilationUnit();
+		tree.inspect(parser);
+		return tree;
 	}
 
 	// listener / error support

@@ -1,6 +1,5 @@
 package mantra.errors;
 
-import mantra.MantraMessage;
 import mantra.Tool;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
@@ -27,13 +26,13 @@ public class ErrorManager {
 	public Set<ErrorType> errorTypes = EnumSet.noneOf(ErrorType.class);
 
     /** The group of templates that represent the current message format. */
-    STGroup format;
+	public STGroup format;
 
     /** Messages should be sensitive to the locale. */
-    Locale locale;
-    String formatName;
+	public Locale locale;
+	public String formatName;
 
-    ErrorBuffer initSTListener = new ErrorBuffer();
+	public ErrorBuffer initSTListener = new ErrorBuffer();
 
     STErrorListener theDefaultSTListener =
         new STErrorListener() {

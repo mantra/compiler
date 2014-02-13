@@ -2,7 +2,11 @@ grammar Mantra;
 
 @header {package mantra;}
 
-compilationUnit : (function|clazz|interfaze|enumb)* EOF ;
+compilationUnit : packageDef? (function|clazz|interfaze|enumb)* EOF ;
+
+packageDef
+	:	'package' packageName
+	;
 
 clazz
     :   ('api'|'abstract')* 'class' ID typeArgumentNames? ('extends' type)? ('implements' type (',' type)*)?
@@ -89,6 +93,11 @@ propdecl
     ;
 */
 
+/*
+TODO: add
+    public Scope scope;   // set by Def.g; ID lives in which scope?
+    public Symbol symbol; // set by Ref.g; point at def in symbol table
+*/
 vardecl
     :   'var' decl ('=' expression)?
     |   'var' ID (',' ID)* ('=' expression)? // type inf can use multiple assign on left
@@ -144,6 +153,7 @@ builtInType
 
     |	(	'map'
 		|	'tree'
+		|	'list'
 		|	'llist'
 		|	'set'
 		)
@@ -153,7 +163,7 @@ builtInType
 block : '{' stat* '}' ;
 
 stat:   lvalue (',' lvalue)* assignmentOperator expression
-    |   expression // calls, expression in a lambda
+    |   expression // calls, pipelines, ...
     |   vardecl
     |   valdecl
     |   'for' expression block
@@ -283,8 +293,15 @@ lambda
     |   '{' '}' // empty lambda
     ;
 
+/** mantra::lang is a package name */
+packageName
+	:	ID ('::' ID)*
+	;
+
+/** mantra::lang::Object is a qualified class name in package mantra::lang */
 qualifiedName
-    :   ID ('.' ID)*
+    :   packageName '::' ID ('.' ID)*
+    |	ID ('.' ID)*
     ;
 
 literal
