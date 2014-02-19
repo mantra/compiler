@@ -106,16 +106,19 @@ TODO: add
     public Symbol symbol; // set by Ref.g; point at def in symbol table
 */
 vardecl
-    :   'var' decl ('=' expression)?
-    |   'var' ID (',' ID)* ('=' expression)? // type inf can use multiple assign on left
+    :   'var' decl ('=' expression)?						# VarDeclWithType
+    |   // type inf can use multiple assign on left
+        'var' name=ID '=' expression 						# VarDeclNoType
+    |   // type inf can use multiple assign on left
+        'var' names+=ID (',' names+=ID)+ '=' expression? 	# MultiVarDeclNoType
     ;
 
 valdecl
-    :   'val' decl '=' expression
-    |   'val' ID '=' expression
+    :   'val' decl '=' expression				# ValDeclWithType
+    |   'val' name=ID '=' expression			# ValDeclNoType
     ;
 
-decl:   ID ':' type ;
+decl:   name=ID ':' type ;
 
 type:	classOrInterfaceType ('[' ']')*
     |	builtInType typeArguments? ('[' ']')*

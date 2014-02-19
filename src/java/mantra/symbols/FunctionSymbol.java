@@ -9,7 +9,7 @@ public class FunctionSymbol extends ScopedSymbol {
 	Type retType;
 	Map<String, Symbol> orderedArgs = new LinkedHashMap<String, Symbol>();
 
-	public FunctionSymbol(String name, Type retType, Scope enclosingScope) {
+	public FunctionSymbol(Scope enclosingScope, String name, Type retType) {
         super(name, enclosingScope);
 		this.retType = retType;
     }

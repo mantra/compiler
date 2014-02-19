@@ -3,7 +3,7 @@ package mantra.symbols;
 import java.util.Map;
 
 public class PackageSymbol extends ScopedSymbol {
-	public PackageSymbol(String name, Scope enclosingScope) {
+	public PackageSymbol(Scope enclosingScope, String name) {
 		super(name, enclosingScope);
 	}
 

@@ -9,8 +9,13 @@ public class BaseSymbol implements Symbol {
 	public ParseTree def;    // points at ID node in tree
 
 	public BaseSymbol(String name) { this.name = name; }
-	public BaseSymbol(String name, Type type) { this(name); this.type = type; }
-	public String getName() { return name; }
+	public BaseSymbol(Scope scope, String name, Type type) {
+		this(name);
+		this.scope = scope;
+		this.type = type;
+	}
+	@Override public String getName() { return name; }
+	@Override public Scope getScope() { return scope; }
 
 	public String toString() {
 		String s = "";

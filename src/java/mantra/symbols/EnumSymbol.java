@@ -7,7 +7,7 @@ public class EnumSymbol extends ScopedSymbol implements Type {
 	/** List of all fields and methods */
 	public Map<String,Symbol> elements=new LinkedHashMap<String,Symbol>();
 
-	public EnumSymbol(String name, Scope enclosingScope) {
+	public EnumSymbol(Scope enclosingScope, String name) {
      super(name, enclosingScope);
 	}
 

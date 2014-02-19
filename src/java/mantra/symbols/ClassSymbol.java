@@ -14,7 +14,7 @@ public class ClassSymbol extends ScopedSymbol implements Type {
     /** List of all fields and methods */
     public Map<String,Symbol> members=new LinkedHashMap<String,Symbol>();
 
-    public ClassSymbol(String name, Scope enclosingScope, ClassSymbol superClass) {
+    public ClassSymbol(Scope enclosingScope, String name, ClassSymbol superClass) {
         super(name, enclosingScope);
         this.superClass = superClass;
     }

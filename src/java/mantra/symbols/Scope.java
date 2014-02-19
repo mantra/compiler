@@ -1,12 +1,17 @@
 package mantra.symbols;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface Scope {
     public String getScopeName();
 
     /** Where to look next for symbols; superclass or enclosing scope. */
     public Scope getParentScope();
+
+	/** Interfaces can have multiple superinterfaces */
+	public List<Scope> getParentScopes();
 
     /** Scope in which this scope defined. For global scope, it's null */
     public Scope getEnclosingScope();
@@ -23,6 +28,9 @@ public interface Scope {
 	 *  all nested classes and any methods.
 	 */
 	public List<Scope> getNestedScopes();
+
+	public Collection<Symbol> getSymbols();
+	public Set<String> getSymbolNames();
 
     /** Define a symbol in the current scope */
     public void define(Symbol sym);

@@ -15,12 +15,4 @@ public class GlobalScope extends BaseScope {
 	@Override
 	public void setEnclosingScope(Scope enclosingScope) {  // readonly
 	}
-
-	@Override
-	public void define(Symbol sym) {
-	}
-
-	@Override
-	public void addNestedScope(Scope s) {
-	}
 }

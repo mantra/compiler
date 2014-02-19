@@ -3,6 +3,8 @@ package test
 class T extends A {
 	var i : int
 	def f(x:int) : float {
+		var i : float
+		var j = 3
 		return x*2.0
 	}
 }

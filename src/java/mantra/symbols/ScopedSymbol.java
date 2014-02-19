@@ -25,13 +25,8 @@ public abstract class ScopedSymbol extends BaseScope implements Symbol, Scope {
         return null; // not found
     }
 
-    public void define(Symbol sym) {
-//        getMembers().put(sym.name, sym);
-//        sym.scope = this; // track the scope in each symbol
-    }
-
-	@Override
-	public String getName() { return name; }
+	@Override public String getName() { return name; }
+	@Override public Scope getScope() { return scope; }
 
 	public Scope getParentScope() { return getEnclosingScope(); }
     public Scope getEnclosingScope() { return enclosingScope; }

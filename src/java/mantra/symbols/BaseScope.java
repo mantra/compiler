@@ -1,9 +1,12 @@
 package mantra.symbols;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public abstract class BaseScope implements Scope {
 	public Scope enclosingScope; // null if global (outermost) scope
@@ -44,12 +47,58 @@ public abstract class BaseScope implements Scope {
 	}
 
 	public void define(Symbol sym) {
-//		symbols.put(sym.name, sym);
-//		sym.scope = this; // track the scope in each symbol
+		symbols.put(sym.getName(), sym);
 	}
 
-    public Scope getParentScope() { return getEnclosingScope(); }
+	public Scope getParentScope() { return getEnclosingScope(); }
+	public List<Scope> getParentScopes() {
+		return new ArrayList<Scope>() {{add(getParentScope());}};
+	}
     public Scope getEnclosingScope() { return enclosingScope; }
 
+	@Override
+	public Collection<Symbol> getSymbols() {
+		return symbols.values();
+	}
+
+	@Override
+	public Set<String> getSymbolNames() {
+		return symbols.keySet();
+	}
+
 	public String toString() { return symbols.keySet().toString(); }
+
+	public String asScopeStackString() {
+		List<String> names = new ArrayList<String>();
+		Scope p = this;
+		while ( p!=null ) {
+			names.add(p.getScopeName());
+			p = p.getEnclosingScope();
+		}
+		Collections.reverse(names);
+		return names.toString();
+	}
+
+	public static void dump(Scope s) {
+		dump(s, 0);
+	}
+
+	public static void dump(Scope s, int level) {
+		tab(level);	System.out.println(s.getScopeName()+" [");
+		level++;
+		for (Symbol sym : s.getSymbols()) {
+			if ( !(sym instanceof Scope) ) {
+				tab(level);	System.out.println(sym.getName());
+			}
+		}
+		for (Scope nested : s.getNestedScopes()) {
+			dump(nested, level);
+		}
+		level--;
+		tab(level);	System.out.println("]");
+	}
+
+	public static void tab(int n) {
+		for (int i=1; i<=n; i++) System.out.print("    ");
+	}
 }

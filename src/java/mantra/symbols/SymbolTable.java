@@ -9,13 +9,13 @@ public class SymbolTable {
     public SymbolTable() { initTypeSystem(); }
 
     protected void initTypeSystem() {
-		defaultPackage = new PackageSymbol("main", GLOBALS);
+		defaultPackage = new PackageSymbol(GLOBALS, "main");
 		GLOBALS.define(defaultPackage);
 
 		// define mantra::lang
-		PackageSymbol mantraPackage = new PackageSymbol("mantra", GLOBALS);
-		PackageSymbol mantraLangPackage = new PackageSymbol("lang", mantraPackage);
-		objectRoot = new ClassSymbol("Object", mantraLangPackage, null);
+		PackageSymbol mantraPackage = new PackageSymbol(GLOBALS, "mantra");
+		PackageSymbol mantraLangPackage = new PackageSymbol(mantraPackage, "lang");
+		objectRoot = new ClassSymbol(mantraLangPackage, "Object", null);
 		GLOBALS.define(objectRoot);
 
         /*

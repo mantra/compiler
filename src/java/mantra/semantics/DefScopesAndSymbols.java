@@ -1,11 +1,16 @@
 package mantra.semantics;
 
 import mantra.MantraBaseListener;
+import mantra.MantraParser;
+import mantra.symbols.BaseScope;
 import mantra.symbols.BlockScope;
 import mantra.symbols.ClassSymbol;
+import mantra.symbols.EnumSymbol;
 import mantra.symbols.FunctionSymbol;
+import mantra.symbols.InterfaceSymbol;
 import mantra.symbols.PackageSymbol;
 import mantra.symbols.Scope;
+import mantra.symbols.VariableSymbol;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -31,8 +36,9 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 
 	@Override
 	public void enterPackageDef(@NotNull PackageDefContext ctx) {
-		ParseTree pname = ctx.getChild(0);
-		PackageSymbol s = new PackageSymbol(pname.getText(), currentScope); // push
+		ParseTree pname = ctx.getChild(1);
+		PackageSymbol s = new PackageSymbol(currentScope, pname.getText()); // push
+		currentScope.define(s);
 		enterScope(s);
 	}
 
@@ -41,13 +47,15 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 		if ( currentScope!=GLOBALS ) {
 			exitScope(); // pop package scope (if any)
 		}
+		BaseScope.dump(currentScope);
 	}
 
 	@Override
 	public void enterClazz(@NotNull ClazzContext ctx) {
 		TypeContext extendsType = ctx.getRuleContext(TypeContext.class, 0);
 //		ClassSymbol superS = extendsType!=null ? extendsType.getText() : null;
-		ClassSymbol s = new ClassSymbol(ctx.name.getText(), currentScope, null);
+		ClassSymbol s = new ClassSymbol(currentScope, ctx.name.getText(), null);
+		currentScope.define(s);
 		enterScope(s);
 	}
 
@@ -58,32 +66,37 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 
 	@Override
 	public void enterInterfaze(@NotNull InterfazeContext ctx) {
-
-	}
-
-	@Override
-	public void exitInterfaze(@NotNull InterfazeContext ctx) {
-
-	}
-
-	@Override
-	public void enterEnumDef(@NotNull EnumDefContext ctx) {
-
-	}
-
-	@Override
-	public void exitEnumDef(@NotNull EnumDefContext ctx) {
-
-	}
-
-	@Override
-	public void enterFunctionHead(@NotNull FunctionHeadContext ctx) {
-		FunctionSymbol s = new FunctionSymbol(ctx.name.getText(), null, currentScope);
+		InterfaceSymbol s = new InterfaceSymbol(currentScope, ctx.name.getText(), null);
+		currentScope.define(s);
 		enterScope(s);
 	}
 
 	@Override
-	public void exitFunctionHead(@NotNull FunctionHeadContext ctx) {
+	public void exitInterfaze(@NotNull InterfazeContext ctx) {
+		exitScope();
+	}
+
+	@Override
+	public void enterEnumDef(@NotNull EnumDefContext ctx) {
+		EnumSymbol s = new EnumSymbol(currentScope, ctx.name.getText());
+		currentScope.define(s);
+		enterScope(s);
+	}
+
+	@Override
+	public void exitEnumDef(@NotNull EnumDefContext ctx) {
+		exitScope();
+	}
+
+	@Override
+	public void enterFunctionHead(@NotNull FunctionHeadContext ctx) {
+		FunctionSymbol s = new FunctionSymbol(currentScope, ctx.name.getText(), null);
+		currentScope.define(s);
+		enterScope(s);
+	}
+
+	@Override
+	public void exitFunction(@NotNull MantraParser.FunctionContext ctx) {
 		exitScope();
 	}
 
@@ -108,4 +121,35 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	}
 
 	// DEFINE SYMBOLS
+
+
+	@Override
+	public void enterVarDeclWithType(@NotNull MantraParser.VarDeclWithTypeContext ctx) {
+		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), null);
+		s.scope = currentScope;
+		currentScope.define(s);
+	}
+
+	@Override
+	public void enterVarDeclNoType(@NotNull MantraParser.VarDeclNoTypeContext ctx) {
+		VariableSymbol s = new VariableSymbol(currentScope, ctx.name.getText(), null);
+		s.scope = currentScope;
+		currentScope.define(s);
+	}
+
+	@Override
+	public void enterMultiVarDeclNoType(@NotNull MantraParser.MultiVarDeclNoTypeContext ctx) {
+
+	}
+
+	@Override
+	public void enterValDeclNoType(@NotNull MantraParser.ValDeclNoTypeContext ctx) {
+
+	}
+
+	@Override
+	public void enterValDeclWithType(@NotNull MantraParser.ValDeclWithTypeContext ctx) {
+
+	}
 }
