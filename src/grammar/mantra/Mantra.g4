@@ -16,7 +16,9 @@ packageDef
 	;
 
 clazz
-    :   ('api'|'abstract')* scope='class' name=ID typeArgumentNames? ('extends' type)? ('implements' type (',' type)*)?
+    :   ('api'|'abstract')* scope='class' name=ID typeArgumentNames?
+     	('extends' supType=type)?
+     	('implements' iTypes+=type (',' iTypes+=type)*)?
         '{'
             clazzMember*
             function*
@@ -32,7 +34,7 @@ interfaze
     ;
 
 enumDef
-	:   scope='enum' name=ID '{' ID (',' ID)* '}'
+	:   scope='enum' name=ID '{' elements+=ID (',' elements+=ID)* '}'
     ;
 
 clazzMember
@@ -114,8 +116,8 @@ vardecl
     ;
 
 valdecl
-    :   'val' decl '=' expression				# ValDeclWithType
-    |   'val' name=ID '=' expression			# ValDeclNoType
+    :   'val' decl '=' expression							# ValDeclWithType
+    |   'val' name=ID '=' expression						# ValDeclNoType
     ;
 
 decl:   name=ID ':' type ;
@@ -208,7 +210,7 @@ catchClause
     ;
 
 catchType
-	:	qualifiedName ('|' qualifiedName)*
+	:	qualifiedName
 	;
 
 finallyBlock
@@ -221,35 +223,36 @@ argExprList
     ;
 
 lvalue
-	:	ID
-	|	expression '[' expression ']'
-	|	expression '.' ID
+	:	ID													# IdLvalue
+	|	expression '[' expression ']'						# ArrayLvalue
+	|	expression '.' ID									# FieldLvalue
 	;
 
 expression
-	:   primary
-    |   expression '.' ID
-    |   expression '[' expression ']'
-    |   expression ('++' | '--')
-    |	'len' '(' expression ')' // calls expression.size()
-    |   expression '(' argExprList? ')' lambda?
-    |   ('+'|'-'|'++'|'--') expression
-    |   ('~'|'!') expression
-    |   expression ('*'|'/'|'%') expression
-    |   expression ('+'|'-') expression
-    |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression
-    |   expression ('<=' | '>=' | '>' | '<') expression
-	|   expression 'instanceof' type
-	|   expression ('==' | '!=' | 'is') expression
-	|   expression '&' expression
-	|   expression '^' expression
-	|   expression '|' expression
-	|	expression ':' expression // range
-	|   expression 'and' expression
-	|   expression 'or' expression
-	|   expression 'in' expression
-	|   expression '?' expression ':' expression
-	|	expression pipeOperator	expression
+	:   primary												# PrimaryExpr
+    |   expression '.' ID									# FieldAccessExpr
+    |   type '.' 'class'									# ClassPtrExpr
+    |   expression '[' expression ']'						# ArrayIndexExpr
+    |	'len' '(' expression ')'							# LenExpr
+    |	'xor' '(' expression ')'							# BitXorExpr
+    |   expression '(' argExprList? ')' lambda?				# CallExpr
+    |   '-' expression										# NegateExpr
+    |   ('~'|'!') expression								# NotExpr
+    |   expression ('*'|'/'|'%') expression					# MultExpr
+    |   expression ('+'|'-') expression						# AddExpr
+    |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression	# ShiftExpr
+    |   expression ('<=' | '>=' | '>' | '<') expression		# CmpExpr
+	|   expression 'instanceof' type						# InstanceOfExpr
+	|   expression ('==' | '!=' | 'is') expression			# EqExpr
+	|   expression '&' expression							# BitAndExpr
+	|   expression '^' expression							# ExpExpr
+	|   expression '|' expression							# BitOrExpr
+	|	expression ':' expression 							# RangeExpr
+	|   expression 'and' expression							# AndExpr
+	|   expression 'or' expression							# OrExpr
+	|   expression 'in' expression							# InExpr
+	|   expression '?' expression ':' expression			# TernaryIfExpr
+	|	expression pipeOperator	expression					# PipeExpr
     ;
 
 pipeOperator
@@ -265,13 +268,12 @@ primary
     |   'this'
     |   'super'
     |   literal
-    |   type '.' 'class'
     |   list
     |   map
     |   set
     |   ctor
     |   lambda
-    |   ID // string[] could match string here then [] as next statement; keep this last
+    |   ID // string[] could match string here then [] as next statement; keep this as last alt
     ;
 
 tuple:	'(' expression (',' expression)+ ')' ; // can also be a tuple of pipelines, yielding pipeline graph
@@ -305,13 +307,13 @@ lambda
 
 /** mantra::lang is a package name */
 packageName
-	:	ID ('::' ID)*
+	:	ids+=ID ('::' ids+=ID)*
 	;
 
 /** mantra::lang::Object is a qualified class name in package mantra::lang */
 qualifiedName
-    :   packageName '::' ID ('.' ID)*
-    |	ID ('.' ID)*
+    :   packageName '::' ids+=ID ('.' ids+=ID)*
+    |	ids+=ID ('.' ids+=ID)*
     ;
 
 literal

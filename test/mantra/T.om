@@ -1,10 +1,16 @@
 package test
 
-class T extends A {
+class T extends A implements X, Y {
 	var i : int
 	def f(x:int) : float {
 		var i : float
 		var j = 3
-		return x*2.0
+		var k,l = (3,j)
+		val m = 2
+		val n : int = m
+		x[i] = 3
+		return x*2.0+a.b.c
 	}
 }
+
+enum E { A, B, C }

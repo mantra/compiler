@@ -11,6 +11,7 @@ import mantra.errors.ErrorType;
 import mantra.errors.MantraMessage;
 import mantra.errors.MantraToolListener;
 import mantra.semantics.DefScopesAndSymbols;
+import mantra.semantics.VerifySymbols;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -102,6 +103,9 @@ public class Tool {
 		// def scopes and symbols
 		DefScopesAndSymbols def = new DefScopesAndSymbols();
 		ParseTreeWalker.DEFAULT.walk(def, tree);
+
+		VerifySymbols ref = new VerifySymbols();
+		ParseTreeWalker.DEFAULT.walk(ref, tree);
 	}
 
 	public ParseTree parseMantraFile(String fileName) throws IOException {
