@@ -1,25 +1,43 @@
 package mantra.semantics;
 
-import mantra.MantraBaseListener;
 import mantra.MantraParser;
+import mantra.symbols.Scope;
 import org.antlr.v4.runtime.misc.NotNull;
 
-public class VerifySymbols extends MantraBaseListener {
+public class VerifyListener extends SetScopeListener {
+	public Scope currentScope; // pick up scope from tree as we descend
 
 	@Override
 	public void enterPackageDef(@NotNull MantraParser.PackageDefContext ctx) {
-
+		super.enterPackageDef(ctx);
 	}
 
 	@Override
 	public void enterClazz(@NotNull MantraParser.ClazzContext ctx) {
+		super.enterClazz(ctx);
 		System.out.println("sup="+ctx.supType);
-		System.out.println("impl="+ctx.iTypes);
+		System.out.println("impl=" + ctx.iTypes);
+	}
+
+	@Override
+	public void enterInterfaze(@NotNull MantraParser.InterfazeContext ctx) {
+		super.enterInterfaze(ctx);
 	}
 
 	@Override
 	public void enterEnumDef(@NotNull MantraParser.EnumDefContext ctx) {
-		System.out.println("elem "+ctx.elements);
+		super.enterEnumDef(ctx);
+		System.out.println("elem " + ctx.elements);
+	}
+
+	@Override
+	public void enterFunctionHead(@NotNull MantraParser.FunctionHeadContext ctx) {
+		super.enterFunctionHead(ctx);
+	}
+
+	@Override
+	public void enterBlock(@NotNull MantraParser.BlockContext ctx) {
+		super.enterBlock(ctx);
 	}
 
 	@Override
@@ -59,6 +77,12 @@ public class VerifySymbols extends MantraBaseListener {
 	public void enterPrimary(@NotNull MantraParser.PrimaryContext ctx) {
 		if ( ctx.ID()!=null ) {
 			System.out.println("ID ref "+ctx.ID().getText());
+		}
+	}
+
+	public void exitScope() {
+		if ( currentScope!=null ) {
+			currentScope = currentScope.getEnclosingScope();
 		}
 	}
 }

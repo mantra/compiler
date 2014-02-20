@@ -11,7 +11,7 @@ import mantra.errors.ErrorType;
 import mantra.errors.MantraMessage;
 import mantra.errors.MantraToolListener;
 import mantra.semantics.DefScopesAndSymbols;
-import mantra.semantics.VerifySymbols;
+import mantra.semantics.VerifyListener;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -104,7 +104,7 @@ public class Tool {
 		DefScopesAndSymbols def = new DefScopesAndSymbols();
 		ParseTreeWalker.DEFAULT.walk(def, tree);
 
-		VerifySymbols ref = new VerifySymbols();
+		VerifyListener ref = new VerifyListener();
 		ParseTreeWalker.DEFAULT.walk(ref, tree);
 	}
 

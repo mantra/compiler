@@ -7,16 +7,22 @@
  */
 grammar Mantra;
 
-@header {package mantra;}
+@header {
+package mantra;
+
+import mantra.symbols.Scope;
+}
 
 compilationUnit : packageDef? (function|clazz|interfaze|enumDef)* EOF ;
 
 packageDef
-	:	scope='package' packageName
+locals [Scope scope] // leaves nice ptr field in this parse tree node
+	:	'package' packageName
 	;
 
 clazz
-    :   ('api'|'abstract')* scope='class' name=ID typeArgumentNames?
+locals [Scope scope]
+    :   ('api'|'abstract')* 'class' name=ID typeArgumentNames?
      	('extends' supType=type)?
      	('implements' iTypes+=type (',' iTypes+=type)*)?
         '{'
@@ -26,7 +32,8 @@ clazz
     ;
 
 interfaze
-    :   'api'? scope='interface' name=ID ('extends' type (',' type)*)?
+locals [Scope scope]
+    :   'api'? 'interface' name=ID ('extends' type (',' type)*)?
         '{'
 //            field*
             functionHead*
@@ -34,7 +41,8 @@ interfaze
     ;
 
 enumDef
-	:   scope='enum' name=ID '{' elements+=ID (',' elements+=ID)* '}'
+locals [Scope scope]
+	:   'enum' name=ID '{' elements+=ID (',' elements+=ID)* '}'
     ;
 
 clazzMember
@@ -61,7 +69,8 @@ function
     ;
 
 functionHead
-    :   scope='def' name=ID functionSignature
+locals [Scope scope]
+    :   'def' name=ID functionSignature
     ;
 
 functionSignature
@@ -122,6 +131,7 @@ valdecl
 
 decl:   name=ID ':' type ;
 
+// TODO: add refs for these type names
 type:	classOrInterfaceType ('[' ']')*
     |	builtInType typeArguments? ('[' ']')*
     |	tupleType ('[' ']')* // (int, float)[100]
@@ -172,7 +182,10 @@ builtInType
 		typeArguments?
 	;
 
-block : scope='{' stat* '}' ;
+block
+locals [Scope scope]
+	:	'{' stat* '}'
+	;
 
 stat:   lvalue (',' lvalue)* assignmentOperator expression
     |   expression // calls, pipelines, ...
