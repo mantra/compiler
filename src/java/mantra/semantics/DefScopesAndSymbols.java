@@ -11,6 +11,7 @@ import mantra.symbols.InterfaceSymbol;
 import mantra.symbols.PackageSymbol;
 import mantra.symbols.Scope;
 import mantra.symbols.VariableSymbol;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -124,32 +125,43 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 
 
 	@Override
+	public void enterArgDef(@NotNull MantraParser.ArgDefContext ctx) {
+		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(0);
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), null);
+		currentScope.define(s);
+	}
+
+	@Override
 	public void enterVarDeclWithType(@NotNull MantraParser.VarDeclWithTypeContext ctx) {
 		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
 		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), null);
-		s.scope = currentScope;
 		currentScope.define(s);
 	}
 
 	@Override
 	public void enterVarDeclNoType(@NotNull MantraParser.VarDeclNoTypeContext ctx) {
 		VariableSymbol s = new VariableSymbol(currentScope, ctx.name.getText(), null);
-		s.scope = currentScope;
 		currentScope.define(s);
 	}
 
 	@Override
 	public void enterMultiVarDeclNoType(@NotNull MantraParser.MultiVarDeclNoTypeContext ctx) {
-
+		for (Token t : ctx.names) {
+			VariableSymbol s = new VariableSymbol(currentScope, t.getText(), null);
+			currentScope.define(s);
+		}
 	}
 
 	@Override
 	public void enterValDeclNoType(@NotNull MantraParser.ValDeclNoTypeContext ctx) {
-
+		VariableSymbol s = new VariableSymbol(currentScope, ctx.name.getText(), null);
+		currentScope.define(s);
 	}
 
 	@Override
 	public void enterValDeclWithType(@NotNull MantraParser.ValDeclWithTypeContext ctx) {
-
+		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), null);
+		currentScope.define(s);
 	}
 }

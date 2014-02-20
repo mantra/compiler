@@ -84,7 +84,7 @@ public abstract class BaseScope implements Scope {
 	}
 
 	public static void dump(Scope s, int level) {
-		tab(level);	System.out.println(s.getScopeName()+" [");
+		tab(level);	System.out.println(s.getScopeName()+" {");
 		level++;
 		for (Symbol sym : s.getSymbols()) {
 			if ( !(sym instanceof Scope) ) {
@@ -95,7 +95,7 @@ public abstract class BaseScope implements Scope {
 			dump(nested, level);
 		}
 		level--;
-		tab(level);	System.out.println("]");
+		tab(level);	System.out.println("}");
 	}
 
 	public static void tab(int n) {
