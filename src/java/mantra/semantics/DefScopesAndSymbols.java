@@ -40,7 +40,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 		ParseTree pname = ctx.getChild(1);
 		PackageSymbol s = new PackageSymbol(currentScope, pname.getText()); // push
 		currentScope.define(s);
-		ctx.scope = currentScope; // record scope in parse tree
+		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 
@@ -58,7 +58,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 //		ClassSymbol superS = extendsType!=null ? extendsType.getText() : null;
 		ClassSymbol s = new ClassSymbol(currentScope, ctx.name.getText(), null);
 		currentScope.define(s);
-		ctx.scope = currentScope; // record scope in parse tree
+		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 
@@ -71,7 +71,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	public void enterInterfaze(@NotNull InterfazeContext ctx) {
 		InterfaceSymbol s = new InterfaceSymbol(currentScope, ctx.name.getText(), null);
 		currentScope.define(s);
-		ctx.scope = currentScope; // record scope in parse tree
+		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 
@@ -84,7 +84,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	public void enterEnumDef(@NotNull EnumDefContext ctx) {
 		EnumSymbol s = new EnumSymbol(currentScope, ctx.name.getText());
 		currentScope.define(s);
-		ctx.scope = currentScope; // record scope in parse tree
+		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 
@@ -97,7 +97,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	public void enterFunctionHead(@NotNull FunctionHeadContext ctx) {
 		FunctionSymbol s = new FunctionSymbol(currentScope, ctx.name.getText(), null);
 		currentScope.define(s);
-		ctx.scope = currentScope; // record scope in parse tree
+		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 
@@ -109,7 +109,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	@Override
 	public void enterBlock(@NotNull BlockContext ctx) {
 		BlockScope s = new BlockScope(currentScope);
-		ctx.scope = currentScope; // record scope in parse tree
+		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 

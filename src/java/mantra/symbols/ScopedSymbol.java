@@ -2,8 +2,6 @@ package mantra.symbols;
 
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import java.util.Map;
-
 public abstract class ScopedSymbol extends BaseScope implements Symbol, Scope {
 	public String name;      // All symbols at least have a name
 	public Type type;
@@ -15,16 +13,6 @@ public abstract class ScopedSymbol extends BaseScope implements Symbol, Scope {
         this.name = name;
 	}
 
-	public Symbol resolve(String name) {
-        Symbol s = getMembers().get(name);
-        if ( s!=null ) return s;
-        // if not here, check any parent scope
-        if ( getParentScope() != null ) {
-            return getParentScope().resolve(name);
-        }
-        return null; // not found
-    }
-
 	@Override public String getName() { return name; }
 	@Override public Scope getScope() { return scope; }
 
@@ -32,9 +20,4 @@ public abstract class ScopedSymbol extends BaseScope implements Symbol, Scope {
     public Scope getEnclosingScope() { return enclosingScope; }
 
     public String getScopeName() { return name; }
-
-    /** Indicate how subclasses store scope members. Allows us to
-     *  factor out common code in this class.
-     */
-    public abstract Map<String, Symbol> getMembers();
 }

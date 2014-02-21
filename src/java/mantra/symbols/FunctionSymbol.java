@@ -2,21 +2,15 @@ package mantra.symbols;
 
 import mantra.misc.Utils;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 public class FunctionSymbol extends ScopedSymbol {
 	Type retType;
-	Map<String, Symbol> orderedArgs = new LinkedHashMap<String, Symbol>();
 
 	public FunctionSymbol(Scope enclosingScope, String name, Type retType) {
         super(name, enclosingScope);
 		this.retType = retType;
     }
 
-    public Map<String, Symbol> getMembers() { return orderedArgs; }
-
     public String getName() {
-        return name+"("+ Utils.stripBrackets(orderedArgs.keySet().toString())+")";
+        return name+"("+ Utils.stripBrackets(symbols.keySet().toString())+")";
     }
 }

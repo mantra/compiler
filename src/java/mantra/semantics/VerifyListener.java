@@ -1,12 +1,10 @@
 package mantra.semantics;
 
 import mantra.MantraParser;
-import mantra.symbols.Scope;
+import mantra.symbols.Symbol;
 import org.antlr.v4.runtime.misc.NotNull;
 
 public class VerifyListener extends SetScopeListener {
-	public Scope currentScope; // pick up scope from tree as we descend
-
 	@Override
 	public void enterPackageDef(@NotNull MantraParser.PackageDefContext ctx) {
 		super.enterPackageDef(ctx);
@@ -33,11 +31,6 @@ public class VerifyListener extends SetScopeListener {
 	@Override
 	public void enterFunctionHead(@NotNull MantraParser.FunctionHeadContext ctx) {
 		super.enterFunctionHead(ctx);
-	}
-
-	@Override
-	public void enterBlock(@NotNull MantraParser.BlockContext ctx) {
-		super.enterBlock(ctx);
 	}
 
 	@Override
@@ -77,6 +70,8 @@ public class VerifyListener extends SetScopeListener {
 	public void enterPrimary(@NotNull MantraParser.PrimaryContext ctx) {
 		if ( ctx.ID()!=null ) {
 			System.out.println("ID ref "+ctx.ID().getText());
+			Symbol v = currentScope.resolve(ctx.ID().getText());
+			System.out.println("resolved to "+v);
 		}
 	}
 

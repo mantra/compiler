@@ -16,7 +16,14 @@ public abstract class BaseScope implements Scope {
 	/** All scopes enclosed/nested within this one; down ptrs in scope tree. */
 	List<Scope> nestedScopes = new ArrayList<Scope>();
 
-    public BaseScope(Scope enclosingScope) { setEnclosingScope(enclosingScope);	}
+	public BaseScope(Scope enclosingScope) { setEnclosingScope(enclosingScope);	}
+
+	/** Indicate how subclasses store scope members. Allows us to
+	 *  factor out common code in this class.
+	 */
+	public Map<String, Symbol> getMembers() {
+		return symbols;
+	}
 
 	@Override
 	public void addNestedScope(Scope s) {
@@ -38,9 +45,13 @@ public abstract class BaseScope implements Scope {
 		return nestedScopes;
 	}
 
-    public Symbol resolve(String name) {
+	@Override
+	public Symbol resolve(String name) {
 		Symbol s = symbols.get(name);
-        if ( s!=null ) return s;
+		if ( s!=null ) {
+			System.out.println("found "+name+" in "+this.asScopeStackString());
+			return s;
+		}
 		// if not here, check any enclosing scope
 		if ( getParentScope() != null ) return getParentScope().resolve(name);
 		return null; // not found
@@ -54,7 +65,7 @@ public abstract class BaseScope implements Scope {
 	public List<Scope> getParentScopes() {
 		return new ArrayList<Scope>() {{add(getParentScope());}};
 	}
-    public Scope getEnclosingScope() { return enclosingScope; }
+	public Scope getEnclosingScope() { return enclosingScope; }
 
 	@Override
 	public Collection<Symbol> getSymbols() {

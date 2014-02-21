@@ -3,9 +3,7 @@ package mantra.symbols;
 import mantra.misc.Utils;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 public class InterfaceSymbol extends ScopedSymbol implements Type {
     /** This is the super interface not enclosingScope field. We still record
@@ -13,9 +11,6 @@ public class InterfaceSymbol extends ScopedSymbol implements Type {
 	 *  The elements are actually InterfaceSymbols.
      */
 	List<Scope> superInterfaces;
-
-    /** List of all methods */
-    public Map<String,Symbol> members=new LinkedHashMap<String,Symbol>();
 
     public InterfaceSymbol(Scope enclosingScope, String name, List<Scope> superInterfaces) {
         super(name, enclosingScope);
@@ -41,11 +36,8 @@ public class InterfaceSymbol extends ScopedSymbol implements Type {
     }
 
 	@Override
-    public Map<String, Symbol> getMembers() { return members; }
-
-	@Override
 	public String toString() {
         return "interface "+name+":{"+
-               Utils.stripBrackets(members.keySet().toString())+"}";
+               Utils.stripBrackets(symbols.keySet().toString())+"}";
     }
 }
