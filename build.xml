@@ -13,6 +13,7 @@
 
 	<!-- set global properties for this build -->
 	<property name="src" location="${basedir}/src/java"/>
+	<property name="grammars" location="${basedir}/src/grammar"/>
 	<property name="gen" location="${basedir}/src/gen"/>
 	<property name="build" location="${basedir}/out/production/tool"/> <!-- mimic what intellij uses -->
 
@@ -26,7 +27,57 @@
 		<mkdir dir="${build}"/>
 	</target>
 
-	<target name="compile" depends="init" description="Compile module tool; production classes">
+	<macrodef name="antlr4">
+		<attribute name="src"/>
+		<attribute name="dest"/>
+		<element name="args" optional="true"/>
+		<sequential>
+			<local name="package"/>
+			<local name="path.antlr4.local"/>
+			<local name="sources.antlr4.local"/>
+			<pathconvert property="package" dirsep="."> <!-- compute package from dir structure -->
+				<path location="@{src}"/>
+				<map from="${grammars}/" to=""/>
+			</pathconvert>
+			<path id="path.antlr4.local">
+				<fileset dir="@{src}" includes="*.g4"/>
+			</path>
+			<pathconvert pathsep=" " property="sources.antlr4.local" refid="path.antlr4.local">
+				<map from="@{src}/" to=""/>
+			</pathconvert>
+			<java classname="org.antlr.v4.Tool" fork="true" failonerror="true" dir="@{src}">
+				<arg value="-o"/>
+				<arg value="${build}/@{src}"/>
+				<arg value="-package"/>
+				<arg value="${package}"/>
+				<args/>
+				<arg line="${sources.antlr4.local}"/>
+				<classpath>
+					<path refid="classpath"/>
+					<pathelement location="${java.class.path}"/>
+				</classpath>
+			</java>
+		</sequential>
+	</macrodef>
+
+	<!-- how to run antlr4 on a dir of grammars -->
+	<target name="antlr4" depends="init">
+		<path id="sources.antlr4">
+			<fileset dir="${grammars}" includes="**/*.g4"/>
+		</path>
+		<pathconvert pathsep="${line.separator}  " property="echo.sources.antlr4" refid="sources.antlr4">
+			<map from="${grammars}/" to=""/>
+		</pathconvert>
+		<echo message="Generating ANTLR 4 grammars:${line.separator}  ${echo.sources.antlr4}"/>
+
+		<antlr4 src="${grammars}" dest="${build}">
+			<args>
+				<arg value="-listener"/>
+			</args>
+		</antlr4>
+	</target>
+
+	<target name="compile" depends="init, antlr4" description="Compile module tool; production classes">
 		<javac destdir="${build}" includeantruntime="false">
 			<classpath refid="classpath"/>
 			<src path="${src}"/>
@@ -45,7 +96,7 @@
 		<delete dir="${build}"/>
 	</target>
 
-	<target name="all" depends="init, compile" description="do everything" >
+	<target name="all" depends="init, antlr4, compile" description="do everything" >
 
 	</target>
 
