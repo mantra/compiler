@@ -1,0 +1,52 @@
+<project name="MyProject" default="all" basedir=".">
+	<dirname property="basedir" file="${ant.file}"/>
+
+	<!-- Global Libraries -->
+
+	<path id="library.antlr-4.2-complete">
+		<pathelement location="/usr/local/lib/antlr-4.2-complete.jar"/>
+	</path>
+
+	<path id="library.st-4.0.7">
+		<pathelement location="/usr/local/lib/ST-4.0.7.jar"/>
+	</path>
+
+	<!-- set global properties for this build -->
+	<property name="src" location="${basedir}/src/java"/>
+	<property name="gen" location="${basedir}/src/gen"/>
+	<property name="build" location="${basedir}/out/production/tool"/> <!-- mimic what intellij uses -->
+
+	<path id="classpath">
+		<path refid="library.antlr-4.2-complete"/>
+		<path refid="library.st-4.0.7"/>
+	</path>
+
+	<target name="init">
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}"/>
+	</target>
+
+	<target name="compile" depends="init" description="Compile module tool; production classes">
+		<javac destdir="${build}" includeantruntime="false">
+			<classpath refid="classpath"/>
+			<src path="${src}"/>
+			<src path="${gen}"/>
+		</javac>
+
+	    <copy todir="${build}"> <!-- copy any non-java resource files to build dir -->
+	      <fileset dir="${basedir}/resources">
+	        <exclude name="**/?*.java"/>
+	        <type type="file"/>
+	      </fileset>
+	    </copy>
+	  </target>
+
+	<target name="clean" description="clean up" >
+		<delete dir="${build}"/>
+	</target>
+
+	<target name="all" depends="init, compile" description="do everything" >
+
+	</target>
+
+</project>
