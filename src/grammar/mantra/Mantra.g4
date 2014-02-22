@@ -8,8 +8,6 @@
 grammar Mantra;
 
 @header {
-package mantra;
-
 import mantra.symbols.Scope;
 }
 
@@ -27,7 +25,6 @@ locals [Scope scope]
      	('implements' iTypes+=type (',' iTypes+=type)*)?
         '{'
             clazzMember*
-            function*
         '}'
     ;
 
@@ -132,10 +129,16 @@ valdecl
 decl:   name=ID ':' type ;
 
 // TODO: add refs for these type names
-type:	classOrInterfaceType ('[' ']')*
-    |	builtInType typeArguments? ('[' ']')*
-    |	tupleType ('[' ']')* // (int, float)[100]
-	|   functionType ('[' ']')* // func<(x:int)>[100]
+// (int, float)[100], func<(x:int)>[100]
+type:	coreType ('[' ']')+									# ArrayType
+	|	coreType											# NonArrayType
+	;
+
+coreType
+	:	classOrInterfaceType
+    |	builtInType
+    |	tupleType
+	|   functionType
 	;
 
 tupleType // ordered list of types; tuples accessed with t[1], t[2], etc...

@@ -12,6 +12,7 @@
 	</path>
 
 	<!-- set global properties for this build -->
+	<property name="srcroot" location="${basedir}/src"/>
 	<property name="src" location="${basedir}/src/java"/>
 	<property name="grammars" location="${basedir}/src/grammar"/>
 	<property name="gen" location="${basedir}/src/gen"/>
@@ -27,31 +28,34 @@
 		<mkdir dir="${build}"/>
 	</target>
 
+	<target name="antlr4-init">
+		<!-- ANTLR generates X.java or XParser.java or XLexer.java from X.g4
+		     so we use a touch file to indicate when we've just build all
+		     grammars.  File is wiped out during clean target.
+		-->
+		<property name="antlr4.touch" value="${build}/antlr4.touch" />
+	</target>
+
+
 	<macrodef name="antlr4">
-		<attribute name="src"/>
+		<attribute name="file"/>
 		<attribute name="dest"/>
 		<element name="args" optional="true"/>
+
 		<sequential>
+			<echo message="Run antlr 4 on @{file}"/>
 			<local name="package"/>
 			<local name="path.antlr4.local"/>
 			<local name="sources.antlr4.local"/>
-			<pathconvert property="package" dirsep="."> <!-- compute package from dir structure -->
-				<path location="@{src}"/>
-				<map from="${grammars}/" to=""/>
-			</pathconvert>
-			<path id="path.antlr4.local">
-				<fileset dir="@{src}" includes="*.g4"/>
-			</path>
-			<pathconvert pathsep=" " property="sources.antlr4.local" refid="path.antlr4.local">
-				<map from="@{src}/" to=""/>
-			</pathconvert>
-			<java classname="org.antlr.v4.Tool" fork="true" failonerror="true" dir="@{src}">
+
+			<property name="package" value="mantra"/>
+			<java classname="org.antlr.v4.Tool" fork="true" failonerror="true">
 				<arg value="-o"/>
-				<arg value="${build}/@{src}"/>
+				<arg value="${gen}/${package}"/>
 				<arg value="-package"/>
 				<arg value="${package}"/>
 				<args/>
-				<arg line="${sources.antlr4.local}"/>
+				<arg line="@{file}"/>
 				<classpath>
 					<path refid="classpath"/>
 					<pathelement location="${java.class.path}"/>
@@ -60,21 +64,27 @@
 		</sequential>
 	</macrodef>
 
-	<!-- how to run antlr4 on a dir of grammars -->
-	<target name="antlr4" depends="init">
-		<path id="sources.antlr4">
-			<fileset dir="${grammars}" includes="**/*.g4"/>
-		</path>
-		<pathconvert pathsep="${line.separator}  " property="echo.sources.antlr4" refid="sources.antlr4">
-			<map from="${grammars}/" to=""/>
-		</pathconvert>
-		<echo message="Generating ANTLR 4 grammars:${line.separator}  ${echo.sources.antlr4}"/>
+	<target name="chk-parsers-up-to-date" depends="antlr4-init">
+		<!-- if any .g4 or .tokens file is newer than the touch file (i.e.,
+		     last time we built the parsers, indicate we need a rebuild
+		-->
+		<uptodate property="parsers-up-to-date" targetfile="${antlr4.touch}" >
+			<srcfiles dir="${grammars}">
+				<include name="**/*.g4"/>
+				<include name="**/*.tokens"/> <!-- we might create a .tokens file by hand -->
+			</srcfiles>
+		</uptodate>
+	</target>
 
-		<antlr4 src="${grammars}" dest="${build}">
+	<!-- how to run antlr4 on a dir of grammars -->
+	<target name="antlr4" depends="init, chk-parsers-up-to-date" unless="parsers-up-to-date">
+		<echo message="Generating Parsers for ANTLR 4 grammars"/>
+		<antlr4 file="${grammars}/mantra/Mantra.g4" dest="${build}">
 			<args>
 				<arg value="-listener"/>
 			</args>
 		</antlr4>
+		<touch file="${antlr4.touch}" mkdirs="true"/>
 	</target>
 
 	<target name="compile" depends="init, antlr4" description="Compile module tool; production classes">
@@ -94,6 +104,7 @@
 
 	<target name="clean" description="clean up" >
 		<delete dir="${build}"/>
+		<delete dir="${gen}"/>
 	</target>
 
 	<target name="all" depends="init, antlr4, compile" description="do everything" >

@@ -1,14 +1,15 @@
 package test
 
 class T extends A implements X, Y {
-	var i : int
+	var ff : int
 	def f(x:int) : float {
-		var i : float
-		var j = 3
+		var i : float[]
+		var j : func<(int):float>
 		var k,l = (3,j)
 		val m = 2
 		val n : int = m
-		x[i] = 3
+		x[i] = ff
+		k = T
 		return x*2.0+a.b.c
 	}
 }
