@@ -3,9 +3,9 @@ package mantra.symbols;
 import mantra.misc.Utils;
 
 public class FunctionSymbol extends ScopedSymbol {
-	Type retType;
+	TypeName retType;
 
-	public FunctionSymbol(Scope enclosingScope, String name, Type retType) {
+	public FunctionSymbol(Scope enclosingScope, String name, TypeName retType) {
         super(name, enclosingScope);
 		this.retType = retType;
     }

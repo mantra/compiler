@@ -2,7 +2,7 @@ package mantra.symbols;
 
 import mantra.misc.Utils;
 
-public class ClassSymbol extends ScopedSymbol implements Type {
+public class ClassSymbol extends ScopedSymbol implements TypeName {
     /** This is the superclass not enclosingScope field. We still record
      *  the enclosing scope so we can push in and pop out of class defs.
      */

@@ -99,7 +99,7 @@ public abstract class BaseScope implements Scope {
 		level++;
 		for (Symbol sym : s.getSymbols()) {
 			if ( !(sym instanceof Scope) ) {
-				tab(level);	System.out.println(sym.getName());
+				tab(level);	System.out.println(sym);
 			}
 		}
 		for (Scope nested : s.getNestedScopes()) {

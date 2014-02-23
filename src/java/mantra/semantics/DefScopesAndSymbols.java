@@ -10,6 +10,7 @@ import mantra.symbols.FunctionSymbol;
 import mantra.symbols.InterfaceSymbol;
 import mantra.symbols.PackageSymbol;
 import mantra.symbols.Scope;
+import mantra.symbols.Type;
 import mantra.symbols.VariableSymbol;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -133,14 +134,14 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	@Override
 	public void enterArgDef(@NotNull MantraParser.ArgDefContext ctx) {
 		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(0);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), null);
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.type()));
 		currentScope.define(s);
 	}
 
 	@Override
 	public void enterVarDeclWithType(@NotNull MantraParser.VarDeclWithTypeContext ctx) {
 		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), null);
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.type()));
 		currentScope.define(s);
 	}
 
@@ -167,7 +168,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	@Override
 	public void enterValDeclWithType(@NotNull MantraParser.ValDeclWithTypeContext ctx) {
 		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), null);
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.type()));
 		currentScope.define(s);
 	}
 }

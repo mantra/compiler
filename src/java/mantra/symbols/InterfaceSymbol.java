@@ -5,7 +5,7 @@ import mantra.misc.Utils;
 import java.util.Collections;
 import java.util.List;
 
-public class InterfaceSymbol extends ScopedSymbol implements Type {
+public class InterfaceSymbol extends ScopedSymbol implements TypeName {
     /** This is the super interface not enclosingScope field. We still record
      *  the enclosing scope so we can push in and pop out of interface defs.
 	 *  The elements are actually InterfaceSymbols.
