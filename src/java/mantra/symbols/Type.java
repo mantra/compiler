@@ -38,6 +38,7 @@ public class Type {
 
 	public final ParseTree tree;
 
+	/** Result types for most binary operations (arithmetic and relational) on built in types */
 	public static final Map<Long, Integer> resultTypes = new HashMap<Long, Integer>();
 
 	/*

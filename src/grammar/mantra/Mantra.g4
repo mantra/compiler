@@ -281,6 +281,7 @@ pipeOperator
     ;
 
 primary
+locals [Type exprType]
 	:	'(' expression ')'
     |	tuple
     |   'this'
