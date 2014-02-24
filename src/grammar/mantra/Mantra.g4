@@ -9,6 +9,7 @@ grammar Mantra;
 
 @header {
 import mantra.symbols.Scope;
+import mantra.symbols.Type;
 }
 
 compilationUnit : packageDef? (function|clazz|interfaze|enumDef)* EOF ;
@@ -245,6 +246,7 @@ lvalue
 	;
 
 expression
+locals [Type exprType]
 	:   primary												# PrimaryExpr
     |   expression '.' ID									# FieldAccessExpr
     |   type '.' 'class'									# ClassPtrExpr
@@ -388,6 +390,7 @@ RETURN : 'return';
 SET : 'set';
 SHORT : 'short';
 STATIC : 'static';
+STRING : 'string';
 SUPER : 'super';
 SWITCH : 'switch';
 THIS : 'this';
@@ -397,6 +400,7 @@ TRY : 'try';
 WHILE : 'while';
 VAR : 'var' ;
 VOID : 'void' ;
+XOR : 'xor' ;
 
 // §3.10.1 Integer Literals
 
