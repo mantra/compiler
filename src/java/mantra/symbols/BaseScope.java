@@ -49,7 +49,7 @@ public abstract class BaseScope implements Scope {
 	public Symbol resolve(String name) {
 		Symbol s = symbols.get(name);
 		if ( s!=null ) {
-			System.out.println("found "+name+" in "+this.asScopeStackString());
+//			System.out.println("found "+name+" in "+this.asScopeStackString());
 			return s;
 		}
 		// if not here, check any enclosing scope

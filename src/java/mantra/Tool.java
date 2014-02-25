@@ -10,6 +10,7 @@ import mantra.errors.ErrorManager;
 import mantra.errors.ErrorType;
 import mantra.errors.MantraMessage;
 import mantra.errors.MantraToolListener;
+import mantra.semantics.ComputeExprTypes;
 import mantra.semantics.DefScopesAndSymbols;
 import mantra.semantics.VerifyListener;
 import org.antlr.v4.runtime.ANTLRFileStream;
@@ -106,6 +107,9 @@ public class Tool {
 
 		VerifyListener ref = new VerifyListener();
 		ParseTreeWalker.DEFAULT.walk(ref, tree);
+
+		ComputeExprTypes types = new ComputeExprTypes();
+		ParseTreeWalker.DEFAULT.walk(types, tree);
 	}
 
 	public ParseTree parseMantraFile(String fileName) throws IOException {

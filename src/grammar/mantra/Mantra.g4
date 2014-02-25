@@ -119,7 +119,7 @@ vardecl
     |   // type inf can use multiple assign on left
         'var' name=ID '=' expression 						# VarDeclNoType
     |   // type inf can use multiple assign on left
-        'var' names+=ID (',' names+=ID)+ '=' expression? 	# MultiVarDeclNoType
+        'var' names+=ID (',' names+=ID)+ '=' expression 	# MultiVarDeclNoType
     ;
 
 valdecl
@@ -252,6 +252,7 @@ locals [Type exprType]
     |   type '.' 'class'									# ClassPtrExpr
     |   expression '[' expression ']'						# ArrayIndexExpr
     |	'len' '(' expression ')'							# LenExpr
+//    |	'count' '(' expression ')'							# CountExpr // counts non nil or non false entries?
     |	'xor' '(' expression ')'							# BitXorExpr
     |   expression '(' argExprList? ')' lambda?				# CallExpr
     |   '-' expression										# NegateExpr
@@ -348,6 +349,7 @@ qualifiedName
     ;
 
 literal
+locals [Type exprType]
     :   IntegerLiteral
     |   FloatingPointLiteral
     |   CharacterLiteral
@@ -396,6 +398,7 @@ INTERFACE : 'interface';
 LEN : 'len';
 LONG : 'long';
 NATIVE : 'native';
+NIL : 'nil' ;
 OVERLOAD : 'overload';
 PACKAGE : 'package';
 PROPERTY : 'property'; // reserved, not used
@@ -624,14 +627,10 @@ BinaryExponentIndicator
 	:	[pP]
 	;
 
-// §3.10.3 Boolean Literals
-
 BooleanLiteral
 	:	'true'
 	|	'false'
 	;
-
-// §3.10.4 Character Literals
 
 CharacterLiteral
 	:	'\'' SingleCharacter '\''
@@ -647,10 +646,9 @@ StringLiteral
 	:	'"' StringCharacter* '"'
 	;
 
-UNTERMINATED_STRING_LITERAL
-	:  '\'' StringCharacter*
+UnterminatedStringLiteral
+	:  '\"' StringCharacter* ([\r\n]|EOF)
 	;
-
 
 fragment
 StringCharacter
@@ -674,9 +672,6 @@ OctalEscape
 fragment
 ZeroToThree
 	:	[0-3]
-	;
-
-Nil :	'nil'
 	;
 
 LPAREN : '(';

@@ -25,16 +25,30 @@ public class Type {
 	public static final int DOUBLE = MantraParser.DOUBLE;
 	public static final int STRING = MantraParser.STRING;
 
-	public static final Type _boolean = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.BOOLEAN, "boolean")));
-	public static final Type _byte = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.BYTE, "byte")));
-	public static final Type _char = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.CHAR, "char")));
-	public static final Type _int = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.INT, "int")));
-	public static final Type _short = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.SHORT, "short")));
-	public static final Type _long = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.LONG, "long")));
-	public static final Type _float = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.FLOAT, "float")));
-	public static final Type _double = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.DOUBLE, "double")));
+	public static final int NIL = MantraParser.NIL;
 
-	public static final Type _string = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.STRING, "string")));
+	public static final Type _object = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.ID, "Object")));
+	public static final Type _boolean = new Type(new TerminalNodeImpl(new CommonToken(BOOLEAN, "boolean")));
+	public static final Type _byte = new Type(new TerminalNodeImpl(new CommonToken(BYTE, "byte")));
+	public static final Type _char = new Type(new TerminalNodeImpl(new CommonToken(CHAR, "char")));
+	public static final Type _int = new Type(new TerminalNodeImpl(new CommonToken(INT, "int")));
+	public static final Type _short = new Type(new TerminalNodeImpl(new CommonToken(SHORT, "short")));
+	public static final Type _long = new Type(new TerminalNodeImpl(new CommonToken(LONG, "long")));
+	public static final Type _float = new Type(new TerminalNodeImpl(new CommonToken(FLOAT, "float")));
+	public static final Type _double = new Type(new TerminalNodeImpl(new CommonToken(DOUBLE, "double")));
+
+	public static final Type _string = new Type(new TerminalNodeImpl(new CommonToken(STRING, "string")));
+
+	// actually no such thing as a predefined type of these, unless we assume list<Object> etc...
+	// must use structural type comparisons unless checking if two types are _int.
+	public static final Type _tuple = new Type(null);
+	public static final Type _func = new Type(null);
+	public static final Type _map = new Type(null);
+	public static final Type _set = new Type(null);
+	public static final Type _list = new Type(null);
+	public static final Type _lambda = new Type(null);
+
+	public static final Type _nil = new Type(new TerminalNodeImpl(new CommonToken(NIL, "nil")));
 
 	public final ParseTree tree;
 
