@@ -284,8 +284,8 @@ primary
 locals [Type exprType]
 	:	'(' expression ')'
     |	tuple
-    |   'this'
-    |   'super'
+    |   THIS
+    |   SUPER
     |   literal
     |   list
     |   map
@@ -295,30 +295,42 @@ locals [Type exprType]
     |   ID // string[] could match string here then [] as next statement; keep this as last alt
     ;
 
-tuple:	'(' expression (',' expression)+ ')' ; // can also be a tuple of pipelines, yielding pipeline graph
+tuple
+locals [Type exprType]
+	:	'(' expression (',' expression)+ ')' ; // can also be a tuple of pipelines, yielding pipeline graph
 
 // ctor (ambig with call)
-ctor:	classOrInterfaceType '(' argExprList? ')'  	// Button(title="foo")
-	|	builtInType          '(' argExprList? ')'  	// int(), string()
+ctor
+locals [Type exprType]
+	:	classOrInterfaceType '(' argExprList? ')'  	// Button(title="foo")
+	|	builtInType          '(' argExprList? ')'  	// int(10), string()
 	|	classOrInterfaceType ('[' expression? ']')+	// User[10][] list of 10 User lists of unspecified initial size
 	|	builtInType          ('[' expression? ']')+ // int[] list of ints with unspecified initial size, int[10] 10 initial ints
 	;
 
-list:   '[' ']' // type inferred
+list
+locals [Type exprType]
+	:   '[' ']' // type inferred
     |   '[' expression (',' expression)* ']'
     ;
 
-map:   '[' mapElem (',' mapElem)* ']'
+map
+locals [Type exprType]
+	:   '[' mapElem (',' mapElem)* ']'
     ;
 
 mapElem
+locals [Type exprType]
     :   expression '=' expression
     ;
 
 // special case for convenience set(1,2), set<User>(User(), User())
-set :   'set' typeArguments? '(' expression (',' expression)* ')' ;
+set
+locals [Type exprType]
+	:   'set' typeArguments? '(' expression (',' expression)* ')' ;
 
 lambda
+ locals [Type exprType]
     :   lambdaSignature '->' expression   // special case single expression
     |   '{' (blockArgs '|')? stat+ '}'
     |   '{' '}' // empty lambda
