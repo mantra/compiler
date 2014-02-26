@@ -10,6 +10,7 @@ import mantra.errors.ErrorManager;
 import mantra.errors.ErrorType;
 import mantra.errors.MantraMessage;
 import mantra.errors.MantraToolListener;
+import mantra.semantics.CheckTypes;
 import mantra.semantics.ComputeTypes;
 import mantra.semantics.DefScopesAndSymbols;
 import mantra.semantics.VerifyListener;
@@ -114,6 +115,16 @@ public class Tool {
 
 		ComputeTypes types = new ComputeTypes(parser);
 		ParseTreeWalker.DEFAULT.walk(types, tree);
+
+		// Check type compatibility, promoting if necessary
+		CheckTypes chk = new CheckTypes();
+		ParseTreeWalker.DEFAULT.walk(chk, tree);
+
+		// Semantic checks
+
+		// Build model of translated code
+
+		// Generate translation, store in file(s)
 	}
 
 	public Pair<ParseTree,Parser> parseMantraFile(String fileName) throws IOException {
