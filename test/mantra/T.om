@@ -15,6 +15,7 @@ class T extends A implements X, Y {
 		var z1 = ['a', 'b', 'c']
 		var z2 = [1, 2, 3]
 		var z3 = ["parrt", 2]
+		var z4 = ["parrt"=2, "foo"=4]
 		var c = 'a'
 	}
 }

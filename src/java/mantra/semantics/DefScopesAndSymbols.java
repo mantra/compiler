@@ -23,7 +23,7 @@ import static mantra.MantraParser.EnumDefContext;
 import static mantra.MantraParser.FunctionHeadContext;
 import static mantra.MantraParser.InterfazeContext;
 import static mantra.MantraParser.PackageDefContext;
-import static mantra.MantraParser.TypeContext;
+import static mantra.MantraParser.TypespecContext;
 import static mantra.symbols.GlobalScope.GLOBALS;
 
 /** Create scope tree and def symbols in Scopes
@@ -55,7 +55,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 
 	@Override
 	public void enterClazz(@NotNull ClazzContext ctx) {
-		TypeContext extendsType = ctx.getRuleContext(TypeContext.class, 0);
+		TypespecContext extendsType = ctx.getRuleContext(TypespecContext.class, 0);
 //		ClassSymbol superS = extendsType!=null ? extendsType.getText() : null;
 		ClassSymbol s = new ClassSymbol(currentScope, ctx.name.getText(), null);
 		currentScope.define(s);
@@ -134,14 +134,14 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	@Override
 	public void enterArgDef(@NotNull MantraParser.ArgDefContext ctx) {
 		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(0);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.type()));
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.typespec()));
 		currentScope.define(s);
 	}
 
 	@Override
 	public void enterVarDeclWithType(@NotNull MantraParser.VarDeclWithTypeContext ctx) {
 		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.type()));
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.typespec()));
 		currentScope.define(s);
 	}
 
@@ -168,7 +168,7 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 	@Override
 	public void enterValDeclWithType(@NotNull MantraParser.ValDeclWithTypeContext ctx) {
 		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.type()));
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.typespec()));
 		currentScope.define(s);
 	}
 }

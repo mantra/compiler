@@ -49,7 +49,7 @@ public class VerifyListener extends SetScopeListener {
 	}
 
 	@Override
-	public void exitArrayLvalue(@NotNull MantraParser.ArrayLvalueContext ctx) {
+	public void exitIndexedLvalue(@NotNull MantraParser.IndexedLvalueContext ctx) {
 		System.out.println("array index");
 	}
 
@@ -62,7 +62,7 @@ public class VerifyListener extends SetScopeListener {
 	}
 
 	@Override
-	public void exitArrayIndexExpr(@NotNull MantraParser.ArrayIndexExprContext ctx) {
+	public void exitIndexedExpr(@NotNull MantraParser.IndexedExprContext ctx) {
 		System.out.println("array index on right");
 	}
 

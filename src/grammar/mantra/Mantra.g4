@@ -22,8 +22,8 @@ locals [Scope scope] // leaves nice ptr field in this parse tree node
 clazz
 locals [Scope scope]
     :   ('api'|'abstract')* 'class' name=ID typeArgumentNames?
-     	('extends' supType=type)?
-     	('implements' iTypes+=type (',' iTypes+=type)*)?
+     	('extends' supType=typespec)?
+     	('implements' iTypes+=typespec (',' iTypes+=typespec)*)?
         '{'
             clazzMember*
         '}'
@@ -31,7 +31,7 @@ locals [Scope scope]
 
 interfaze
 locals [Scope scope]
-    :   'api'? 'interface' name=ID ('extends' type (',' type)*)?
+    :   'api'? 'interface' name=ID ('extends' typespec (',' typespec)*)?
         '{'
 //            field*
             functionHead*
@@ -72,7 +72,7 @@ locals [Scope scope]
     ;
 
 functionSignature
-    :   '(' argList? ')' (':' type)?
+    :   '(' argList? ')' (':' typespec)?
     ;
 
 argList
@@ -96,9 +96,9 @@ blockArgs // no explicit return types in blocks { x,y | return x*y }
     ;
 
 funcSignature
-    :   '(' ')' ':' type
+    :   '(' ')' ':' typespec
     |	'(' ')'
-	|	'(' argList ')' ':' type
+	|	'(' argList ')' ':' typespec
 	|	'(' argList ')'
     ;
 
@@ -127,15 +127,18 @@ valdecl
     |   'val' name=ID '=' expression						# ValDeclNoType
     ;
 
-decl:   name=ID ':' type ;
+decl:   name=ID ':' typespec ;
 
 // TODO: add refs for these type names
 // (int, float)[100], func<(x:int)>[100]
-type:	coreType ('[' ']')+									# ArrayType
-	|	coreType											# NonArrayType
+typespec
+returns [Type type]
+	:	coreType ('[' ']')+									# IndexedType
+	|	coreType											# NonIndexedType
 	;
 
 coreType
+returns [Type type]
 	:	classOrInterfaceType
     |	builtInType
     |	tupleType
@@ -143,23 +146,26 @@ coreType
 	;
 
 tupleType // ordered list of types; tuples accessed with t[1], t[2], etc...
-	:	'(' type (',' type)+ ')'
+returns [Type type]
+	:	'(' typespec (',' typespec)+ ')'
 	;
 
 functionType
-    :   'func' '<' '(' argList? ')' ':' type '>'
+returns [Type type]
+    :   'func' '<' '(' argList? ')' ':' typespec '>'
     |	'func' '<' '(' argList ')' '>'
-    |   'func' '<' '(' type ')' ':' type '>' // single argument doesn't need name
-    |   'func' '<' '(' type ')' '>'
+    |   'func' '<' '(' typespec ')' ':' typespec '>' // single argument doesn't need name
+    |   'func' '<' '(' typespec ')' '>'
     |	'func' // ref to func with no args, no return value like {}
     ;
 
 classOrInterfaceType
+returns [Type type]
 	:	qualifiedName typeArguments?
 	;
 
 typeArguments
-    :   '<' type (',' type)* '>'
+    :   '<' typespec (',' typespec)* '>'
     ;
 
 typeArgumentNames // only built-in types can use this like llist<string>
@@ -241,16 +247,16 @@ argExprList
 
 lvalue
 	:	ID													# IdLvalue
-	|	expression '[' expression ']'						# ArrayLvalue
+	|	expression '[' expression ']'						# IndexedLvalue
 	|	expression '.' ID									# FieldLvalue
 	;
 
 expression
-locals [Type exprType]
+returns [Type type]
 	:   primary												# PrimaryExpr
     |   expression '.' ID									# FieldAccessExpr
-    |   type '.' 'class'									# ClassPtrExpr
-    |   expression '[' expression ']'						# ArrayIndexExpr
+    |   typespec '.' 'class'								# ClassPtrExpr
+    |   expression '[' expression ']'						# IndexedExpr
     |	'len' '(' expression ')'							# LenExpr
 //    |	'count' '(' expression ')'							# CountExpr // counts non nil or non false entries?
     |	'xor' '(' expression ')'							# BitXorExpr
@@ -261,7 +267,7 @@ locals [Type exprType]
     |   expression ('+'|'-') expression						# AddExpr
     |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression	# ShiftExpr
     |   expression ('<=' | '>=' | '>' | '<') expression		# CmpExpr
-	|   expression 'instanceof' type						# InstanceOfExpr
+	|   expression 'instanceof' typespec					# InstanceOfExpr
 	|   expression ('==' | '!=' | 'is') expression			# EqExpr
 	|   expression '&' expression							# BitAndExpr
 	|   expression '^' expression							# ExpExpr
@@ -282,7 +288,7 @@ pipeOperator
     ;
 
 primary
-locals [Type exprType]
+returns [Type type]
 	:	'(' expression ')'
     |	tuple
     |   THIS
@@ -297,12 +303,12 @@ locals [Type exprType]
     ;
 
 tuple
-locals [Type exprType]
+returns [Type type]
 	:	'(' expression (',' expression)+ ')' ; // can also be a tuple of pipelines, yielding pipeline graph
 
 // ctor (ambig with call)
 ctor
-locals [Type exprType]
+returns [Type type]
 	:	classOrInterfaceType '(' argExprList? ')'  	// Button(title="foo")
 	|	builtInType          '(' argExprList? ')'  	// int(10), string()
 	|	classOrInterfaceType ('[' expression? ']')+	// User[10][] list of 10 User lists of unspecified initial size
@@ -310,29 +316,29 @@ locals [Type exprType]
 	;
 
 list
-locals [Type exprType]
+returns [Type type]
 	:   '[' ']' // type inferred
     |   '[' expression (',' expression)* ']'
     ;
 
 map
-locals [Type exprType]
+returns [Type type]
 	:   '[' mapElem (',' mapElem)* ']'
     ;
 
 mapElem
-locals [Type exprType]
+returns [Type type]
     :   expression '=' expression
     ;
 
 // special case for convenience set(1,2), set<User>(User(), User()) where we don't need arg names
 set
-locals [Type exprType]
+returns [Type type]
 	:   'set' typeArguments? '(' (expression (',' expression)*)? ')'
 	;
 
 lambda
- locals [Type exprType]
+ returns [Type type]
     :   lambdaSignature '->' expression   // special case single expression
     |   '{' (blockArgs '|')? stat+ '}'
     |   '{' '}' // empty lambda
@@ -350,7 +356,7 @@ qualifiedName
     ;
 
 literal
-locals [Type exprType]
+returns [Type type]
     :   IntegerLiteral
     |   FloatingPointLiteral
     |   CharacterLiteral

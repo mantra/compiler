@@ -21,47 +21,48 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-/*
-expression
-locals [Type exprType]
-	:   primary												# PrimaryExpr
-    |   expression '.' ID									# FieldAccessExpr
-    |   type '.' 'class'									# ClassPtrExpr
-    |   expression '[' expression ']'						# ArrayIndexExpr
-    |	'len' '(' expression ')'							# LenExpr
-    |	'xor' '(' expression ')'							# BitXorExpr
-    |   expression '(' argExprList? ')' lambda?				# CallExpr
-    |   '-' expression										# NegateExpr
-    |   ('~'|'!') expression								# NotExpr
-    |   expression ('*'|'/'|'%') expression					# MultExpr
-    |   expression ('+'|'-') expression						# AddExpr
-    |   expression ('<' '<' | '>' '>' '>' | '>' '>') expression	# ShiftExpr
-    |   expression ('<=' | '>=' | '>' | '<') expression		# CmpExpr
-	|   expression 'instanceof' type						# InstanceOfExpr
-	|   expression ('==' | '!=' | 'is') expression			# EqExpr
-	|   expression '&' expression							# BitAndExpr
-	|   expression '^' expression							# ExpExpr
-	|   expression '|' expression							# BitOrExpr
-	|	expression ':' expression 							# RangeExpr
-	|   expression 'and' expression							# AndExpr
-	|   expression 'or' expression							# OrExpr
-	|   expression 'in' expression							# InExpr
-	|   expression '?' expression ':' expression			# TernaryIfExpr
-	|	expression pipeOperator	expression					# PipeExpr
-    ;
- */
-public class ComputeExprTypes extends SetScopeListener {
+public class ComputeTypes extends SetScopeListener {
 	public Parser parser;
-	public ComputeExprTypes(Parser parser) {
+	public ComputeTypes(Parser parser) {
 		this.parser = parser;
 	}
 
+
+	/*
+	expression
+	returns [Type type]
+		:   primary												# PrimaryExpr
+		|   expression '.' ID									# FieldAccessExpr
+		|   type '.' 'class'									# ClassPtrExpr
+		|   expression '[' expression ']'						# ArrayIndexExpr
+		|	'len' '(' expression ')'							# LenExpr
+		|	'xor' '(' expression ')'							# BitXorExpr
+		|   expression '(' argExprList? ')' lambda?				# CallExpr
+		|   '-' expression										# NegateExpr
+		|   ('~'|'!') expression								# NotExpr
+		|   expression ('*'|'/'|'%') expression					# MultExpr
+		|   expression ('+'|'-') expression						# AddExpr
+		|   expression ('<' '<' | '>' '>' '>' | '>' '>') expression	# ShiftExpr
+		|   expression ('<=' | '>=' | '>' | '<') expression		# CmpExpr
+		|   expression 'instanceof' type						# InstanceOfExpr
+		|   expression ('==' | '!=' | 'is') expression			# EqExpr
+		|   expression '&' expression							# BitAndExpr
+		|   expression '^' expression							# ExpExpr
+		|   expression '|' expression							# BitOrExpr
+		|	expression ':' expression 							# RangeExpr
+		|   expression 'and' expression							# AndExpr
+		|   expression 'or' expression							# OrExpr
+		|   expression 'in' expression							# InExpr
+		|   expression '?' expression ':' expression			# TernaryIfExpr
+		|	expression pipeOperator	expression					# PipeExpr
+		;
+	 */
 	@Override public void exitPrimaryExpr(@NotNull MantraParser.PrimaryExprContext ctx) {
-		ctx.exprType = ctx.primary().exprType;
+		ctx.type = ctx.primary().type;
 	}
 	@Override public void exitFieldAccessExpr(@NotNull MantraParser.FieldAccessExprContext ctx) { }
 	@Override public void exitClassPtrExpr(@NotNull MantraParser.ClassPtrExprContext ctx) { }
-	@Override public void exitArrayIndexExpr(@NotNull MantraParser.ArrayIndexExprContext ctx) { }
+	@Override public void exitIndexedExpr(@NotNull MantraParser.IndexedExprContext ctx) { }
 	@Override public void exitLenExpr(@NotNull MantraParser.LenExprContext ctx) { }
 	@Override public void exitBitXorExpr(@NotNull MantraParser.BitXorExprContext ctx) { }
 	@Override public void exitCallExpr(@NotNull MantraParser.CallExprContext ctx) { }
@@ -85,7 +86,7 @@ public class ComputeExprTypes extends SetScopeListener {
 
 	/*
 	primary
-	locals [Type exprType]
+	locals [Type type]
 		:	'(' expression ')'
 	    |	tuple
 	    |   THIS
@@ -103,38 +104,38 @@ public class ComputeExprTypes extends SetScopeListener {
 	public void exitPrimary(@NotNull MantraParser.PrimaryContext ctx) {
 		// not broken down by # labels as I figured 10x2 new enter/exit methods wasn't worth it
 		if ( ctx.expression()!=null ) {
-			ctx.exprType = ctx.expression().exprType;
+			ctx.type = ctx.expression().type;
 		}
 		else if ( ctx.tuple()!=null ) {
-			ctx.exprType = ctx.tuple().exprType;
+			ctx.type = ctx.tuple().type;
 		}
 		else if ( ctx.THIS()!=null ) {
 		}
 		else if ( ctx.SUPER()!=null ) {
 		}
 		else if ( ctx.literal()!=null ) {
-			ctx.exprType = ctx.literal().exprType;
+			ctx.type = ctx.literal().type;
 		}
 		else if ( ctx.list()!=null ) {
-			ctx.exprType = ctx.list().exprType;
+			ctx.type = ctx.list().type;
 		}
 		else if ( ctx.map()!=null ) {
-			ctx.exprType = ctx.map().exprType;
+			ctx.type = ctx.map().type;
 		}
 		else if ( ctx.set()!=null ) {
-			ctx.exprType = ctx.set().exprType;
+			ctx.type = ctx.set().type;
 		}
 		else if ( ctx.ctor()!=null ) {
-			ctx.exprType = ctx.ctor().exprType;
+			ctx.type = ctx.ctor().type;
 		}
 		else if ( ctx.lambda()!=null ) {
-			ctx.exprType = ctx.lambda().exprType;
+			ctx.type = ctx.lambda().type;
 		}
 		else if ( ctx.ID()!=null ) {
 			Symbol s = currentScope.resolve(ctx.ID().getText());
 			if ( s==null ) return;
 			if ( s instanceof VariableSymbol ) {
-				ctx.exprType = ((VariableSymbol)s).getType();
+				ctx.type = ((VariableSymbol)s).getType();
 			}
 			else if ( s instanceof ClassSymbol ) {
 			}
@@ -143,30 +144,30 @@ public class ComputeExprTypes extends SetScopeListener {
 			else if ( s instanceof EnumSymbol ) {
 			}
 		}
-		System.out.println("primary '"+ctx.getText()+"' type is "+ctx.exprType);
+		System.out.println("primary '"+ctx.getText()+"' type is "+ctx.type);
 	}
 
 	/*
 	tuple
-	locals [Type exprType]
+	returns [Type type]
 		:	'(' expression (',' expression)+ ')' ; // can also be a tuple of pipelines, yielding pipeline graph
 	 */
 	@Override
 	public void exitTuple(@NotNull MantraParser.TupleContext ctx) {
 		List<Type> elemTypes = new ArrayList<Type>();
 		for (MantraParser.ExpressionContext ectx : ctx.expression()) {
-			elemTypes.add(ectx.exprType);
+			elemTypes.add(ectx.type);
 		}
-		//var elemTypes = ctx.expression() => { ectx | ectx.exprType }
-		//var elemTypes = apply(ctx.expression(), ectx -> ectx.exprType)
-		// actually ctx.expression().exprType would work in Mantra
+		//var elemTypes = ctx.expression() => { ectx | ectx.type }
+		//var elemTypes = apply(ctx.expression(), ectx -> ectx.type)
+		// actually ctx.expression().type would work in Mantra
 
-		ctx.exprType = new TupleType(ctx, elemTypes);
+		ctx.type = new TupleType(ctx, elemTypes);
 	}
 
 	/*
 	literal
-	locals [Type exprType]
+	locals [Type type]
 	    :   IntegerLiteral
 	    |   FloatingPointLiteral
 	    |   CharacterLiteral
@@ -183,22 +184,22 @@ public class ComputeExprTypes extends SetScopeListener {
 		}
 		switch ( ((TerminalNode)lit).getSymbol().getType() ) {
 			case MantraParser.IntegerLiteral :
-				ctx.exprType = Type._int;
+				ctx.type = Type._int;
 				break;
 			case MantraParser.FloatingPointLiteral :
-				ctx.exprType = Type._float;
+				ctx.type = Type._float;
 				break;
 			case MantraParser.CharacterLiteral :
-				ctx.exprType = Type._char;
+				ctx.type = Type._char;
 				break;
 			case MantraParser.StringLiteral :
-				ctx.exprType = Type._string;
+				ctx.type = Type._string;
 				break;
 			case MantraParser.BooleanLiteral :
-				ctx.exprType = Type._boolean;
+				ctx.type = Type._boolean;
 				break;
 			case MantraParser.NIL :
-				ctx.exprType = Type._nil;
+				ctx.type = Type._nil;
 				break;
 			default :
 				System.err.println("unknown literal: "+ctx.getText());
@@ -208,12 +209,12 @@ public class ComputeExprTypes extends SetScopeListener {
 	@Override
 	public void exitList(@NotNull MantraParser.ListContext ctx) {
 		if ( ctx.expression()==null ) {
-			ctx.exprType = Type._object;
+			ctx.type = Type._object;
 		}
 		else {
 			List<Type> elemTypes = new ArrayList<Type>();
 			for (MantraParser.ExpressionContext ectx : ctx.expression()) {
-				elemTypes.add(ectx.exprType);
+				elemTypes.add(ectx.type);
 			}
 			// check they are same
 			// var elemType = count(operator==(ctx.expression())) = len(ctx.expression())
@@ -222,22 +223,22 @@ public class ComputeExprTypes extends SetScopeListener {
 			for (Type t : elemTypes) {
 				if ( !t.equals(uniqType) ) {
 					System.out.println("hetero list");
-					ctx.exprType = new ListType(ctx, Type._object);
+					ctx.type = new ListType(ctx, Type._object);
 					return;
 				}
 			}
-			ctx.exprType = new ListType(ctx, uniqType);
+			ctx.type = new ListType(ctx, uniqType);
 		}
 	}
 
 	/*
 	map
-	locals [Type exprType]
+	locals [Type type]
 		:   '[' mapElem (',' mapElem)* ']'
 	    ;
 
 	mapElem
-	locals [Type exprType]
+	locals [Type type]
 	    :   expression '=' expression
 	    ;
 	 */
@@ -251,31 +252,31 @@ public class ComputeExprTypes extends SetScopeListener {
 			MantraParser.ExpressionContext k = m.expression(0);
 			MantraParser.ExpressionContext v = m.expression(1);
 			if ( key==null ) {
-				key = k.exprType;
-				value = v.exprType;
+				key = k.type;
+				value = v.type;
 			}
-			else if ( !k.exprType.equals(key) ) {
+			else if ( !k.type.equals(key) ) {
 				// hetero map
 				key = Type._object;
 			}
-			else if ( !v.exprType.equals(value) ) {
+			else if ( !v.type.equals(value) ) {
 				// hetero map
 				value = Type._object;
 			}
 		}
-		ctx.exprType = new MapType(ctx, key, value);
+		ctx.type = new MapType(ctx, key, value);
 	}
 
 	/*
 	set
-	locals [Type exprType]
+	locals [Type type]
 		:   'set' typeArguments? '(' (expression (',' expression)*)? ')'
 		;
 	 */
 	@Override
 	public void exitSet(@NotNull MantraParser.SetContext ctx) {
 		if ( ctx.expression()==null ) {
-			ctx.exprType = Type._object;
+			ctx.type = Type._object;
 			return;
 		}
 		if ( ctx.typeArguments()!=null ) {
@@ -283,22 +284,22 @@ public class ComputeExprTypes extends SetScopeListener {
 		}
 		List<Type> elemTypes = new ArrayList<Type>();
 		for (MantraParser.ExpressionContext ectx : ctx.expression()) {
-			elemTypes.add(ectx.exprType);
+			elemTypes.add(ectx.type);
 		}
 		// check they are same
 		Type uniqType = elemTypes.get(0);
 		for (Type t : elemTypes) {
 			if ( !t.equals(uniqType) ) {
-				ctx.exprType = new SetType(ctx, Type._object);
+				ctx.type = new SetType(ctx, Type._object);
 				return;
 			}
 		}
-		ctx.exprType = new SetType(ctx, uniqType);
+		ctx.type = new SetType(ctx, uniqType);
 	}
 
 	/*
 	ctor
-	locals [Type exprType]
+	locals [Type type]
 		:	classOrInterfaceType '(' argExprList? ')'  	// Button(title="foo")
 		|	builtInType          '(' argExprList? ')'  	// int(10), string()
 		|	classOrInterfaceType ('[' expression? ']')+	// User[10][] list of 10 User lists of unspecified initial size
@@ -311,6 +312,6 @@ public class ComputeExprTypes extends SetScopeListener {
 
 	@Override
 	public void exitLambda(@NotNull MantraParser.LambdaContext ctx) {
-		ctx.exprType = new Type(ctx);
+		ctx.type = new Type(ctx);
 	}
 }
