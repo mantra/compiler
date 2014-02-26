@@ -133,7 +133,7 @@ decl:   name=ID ':' typespec ;
 // (int, float)[100], func<(x:int)>[100]
 typespec
 returns [Type type]
-	:	coreType ('[' ']')+									# IndexedType
+	:	coreType '[' ']'									# IndexedType
 	|	coreType											# NonIndexedType
 	;
 
@@ -173,6 +173,7 @@ typeArgumentNames // only built-in types can use this like llist<string>
     ;
 
 builtInType
+returns [Type type]
     :   'boolean'
     |   'char'
     |   'byte'
@@ -182,8 +183,12 @@ builtInType
     |   'float'
     |   'double'
 	|	'string'
+	|	complexBuiltInType
+	;
 
-    |	(	'map'
+complexBuiltInType
+returns [Type type]
+	:	(	'map'
 		|	'tree'
 		|	'list'
 		|	'llist'
@@ -307,12 +312,13 @@ returns [Type type]
 	:	'(' expression (',' expression)+ ')' ; // can also be a tuple of pipelines, yielding pipeline graph
 
 // ctor (ambig with call)
+// todo: 2d list? list<string[]>. string[] is shorthand for list<string>
 ctor
 returns [Type type]
 	:	classOrInterfaceType '(' argExprList? ')'  	// Button(title="foo")
 	|	builtInType          '(' argExprList? ')'  	// int(10), string()
-	|	classOrInterfaceType ('[' expression? ']')+	// User[10][] list of 10 User lists of unspecified initial size
-	|	builtInType          ('[' expression? ']')+ // int[] list of ints with unspecified initial size, int[10] 10 initial ints
+	|	classOrInterfaceType '[' expression? ']'	// User[10] list of 10 User lists
+	|	builtInType          '[' expression? ']' 	// int[] list of ints with unspecified initial size, int[10] 10 initial ints
 	;
 
 list
@@ -403,6 +409,8 @@ INSTANCEOF : 'instanceof';
 INT : 'int';
 INTERFACE : 'interface';
 LEN : 'len';
+LIST : 'list' ;
+LLIST : 'llist' ;
 LONG : 'long';
 NATIVE : 'native';
 NIL : 'nil' ;
@@ -419,6 +427,7 @@ SWITCH : 'switch';
 THIS : 'this';
 THROW : 'throw';
 TRANSIENT : 'transient';
+TREE : 'tree' ;
 TRY : 'try';
 WHILE : 'while';
 VAR : 'var' ;

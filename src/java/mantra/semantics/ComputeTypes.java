@@ -3,7 +3,10 @@ package mantra.semantics;
 import mantra.MantraParser;
 import mantra.symbols.ClassSymbol;
 import mantra.symbols.EnumSymbol;
+import mantra.symbols.InstanceType;
 import mantra.symbols.InterfaceSymbol;
+import mantra.symbols.InterfaceType;
+import mantra.symbols.LListType;
 import mantra.symbols.ListType;
 import mantra.symbols.MapType;
 import mantra.symbols.SetType;
@@ -27,36 +30,171 @@ public class ComputeTypes extends SetScopeListener {
 		this.parser = parser;
 	}
 
+	@Override
+	public void exitIndexedType(@NotNull MantraParser.IndexedTypeContext ctx) {
+		ctx.type = new ListType(ctx, ctx.coreType().type);
+		System.out.println("type of "+ctx.getText()+" is "+ctx.type);
+	}
+
+	@Override
+	public void exitNonIndexedType(@NotNull MantraParser.NonIndexedTypeContext ctx) {
+		ctx.type = ctx.coreType().type;
+		System.out.println("type of "+ctx.getText()+" is "+ctx.type);
+	}
 
 	/*
-	expression
+	coreType
 	returns [Type type]
-		:   primary												# PrimaryExpr
-		|   expression '.' ID									# FieldAccessExpr
-		|   type '.' 'class'									# ClassPtrExpr
-		|   expression '[' expression ']'						# ArrayIndexExpr
-		|	'len' '(' expression ')'							# LenExpr
-		|	'xor' '(' expression ')'							# BitXorExpr
-		|   expression '(' argExprList? ')' lambda?				# CallExpr
-		|   '-' expression										# NegateExpr
-		|   ('~'|'!') expression								# NotExpr
-		|   expression ('*'|'/'|'%') expression					# MultExpr
-		|   expression ('+'|'-') expression						# AddExpr
-		|   expression ('<' '<' | '>' '>' '>' | '>' '>') expression	# ShiftExpr
-		|   expression ('<=' | '>=' | '>' | '<') expression		# CmpExpr
-		|   expression 'instanceof' type						# InstanceOfExpr
-		|   expression ('==' | '!=' | 'is') expression			# EqExpr
-		|   expression '&' expression							# BitAndExpr
-		|   expression '^' expression							# ExpExpr
-		|   expression '|' expression							# BitOrExpr
-		|	expression ':' expression 							# RangeExpr
-		|   expression 'and' expression							# AndExpr
-		|   expression 'or' expression							# OrExpr
-		|   expression 'in' expression							# InExpr
-		|   expression '?' expression ':' expression			# TernaryIfExpr
-		|	expression pipeOperator	expression					# PipeExpr
+		:	classOrInterfaceType
+	    |	builtInType
+	    |	tupleType
+		|   functionType
 		;
 	 */
+	@Override
+	public void exitCoreType(@NotNull MantraParser.CoreTypeContext ctx) {
+		if ( ctx.classOrInterfaceType()!=null ) {
+			ctx.type = ctx.classOrInterfaceType().type;
+		}
+		else if ( ctx.builtInType()!=null ) {
+			ctx.type = ctx.builtInType().type;
+		}
+		else if ( ctx.tupleType()!=null ) {
+			ctx.type = ctx.tupleType().type;
+		}
+		else if ( ctx.functionType()!=null ) {
+			ctx.type = ctx.functionType().type;
+		}
+	}
+
+	/*
+	tupleType // ordered list of types; tuples accessed with t[1], t[2], etc...
+	returns [Type type]
+		:	'(' typespec (',' typespec)+ ')'
+		;
+	 */
+	@Override
+	public void exitTupleType(@NotNull MantraParser.TupleTypeContext ctx) {
+	}
+
+	/*
+	functionType
+	returns [Type type]
+	    :   'func' '<' '(' argList? ')' ':' typespec '>'
+	    |	'func' '<' '(' argList ')' '>'
+	    |   'func' '<' '(' typespec ')' ':' typespec '>' // single argument doesn't need name
+	    |   'func' '<' '(' typespec ')' '>'
+	    |	'func' // ref to func with no args, no return value like {}
+	    ;
+	 */
+	@Override
+	public void exitFunctionType(@NotNull MantraParser.FunctionTypeContext ctx) {
+	}
+
+	/*
+	classOrInterfaceType
+	returns [Type type]
+		:	qualifiedName typeArguments?
+		;
+
+	typeArguments
+	    :   '<' typespec (',' typespec)* '>'
+	    ;
+	 */
+	@Override
+	public void exitClassOrInterfaceType(@NotNull MantraParser.ClassOrInterfaceTypeContext ctx) {
+		String qname = ctx.qualifiedName().getText();
+		Symbol s = currentScope.resolve(qname);
+		if ( s != null ) {
+			if ( s instanceof ClassSymbol ) {
+				ctx.type = new InstanceType(ctx, (ClassSymbol)s);
+			}
+			if ( s instanceof InterfaceSymbol ) {
+				ctx.type = new InterfaceType(ctx, (InterfaceSymbol)s);
+			}
+			// type args
+		}
+	}
+
+	@Override
+	public void exitBuiltInType(@NotNull MantraParser.BuiltInTypeContext ctx) {
+		ParseTree tnode = ctx.getChild(0);
+		if ( tnode instanceof TerminalNode ) {
+			switch ( ((TerminalNode) tnode).getSymbol().getType() ) {
+				case Type.CHAR 	: ctx.type = Type._char; return;
+				case Type.BYTE 	: ctx.type = Type._byte; return;
+				case Type.SHORT : ctx.type = Type._short; return;
+				case Type.INT 	: ctx.type = Type._int; return;
+				case Type.LONG 	: ctx.type = Type._long; return;
+				case Type.FLOAT : ctx.type = Type._float; return;
+				case Type.DOUBLE: ctx.type = Type._double; return;
+				case Type.STRING: ctx.type = Type._string; return;
+			}
+		}
+		else {
+			ctx.type = ctx.complexBuiltInType().type;
+		}
+	}
+
+	@Override
+	public void exitComplexBuiltInType(@NotNull MantraParser.ComplexBuiltInTypeContext ctx) {
+		ParseTree tnode = ctx.getChild(0);
+/*
+			'map'
+		|	'tree'
+		|	'list'
+		|	'llist'
+		|	'set'
+		 */
+		// type args
+		switch ( ((TerminalNode) tnode).getSymbol().getType() ) {
+			case Type.MAP 	:
+				ctx.type = new MapType(ctx, Type._object, Type._object);
+				return;
+//			case Type.TREE 	:
+//				ctx.type = new MapType(ctx, Type._object, Type._object);
+//				return;
+			case Type.LIST 	:
+				ctx.type = new ListType(ctx, Type._object);
+				return;
+			case Type.LLIST	:
+				ctx.type = new LListType(ctx, Type._object);
+				return;
+			case Type.SET 	:
+				ctx.type = new SetType(ctx, Type._object);
+				return;
+		}
+	}
+
+	/*
+			expression
+			returns [Type type]
+				:   primary												# PrimaryExpr
+				|   expression '.' ID									# FieldAccessExpr
+				|   type '.' 'class'									# ClassPtrExpr
+				|   expression '[' expression ']'						# ArrayIndexExpr
+				|	'len' '(' expression ')'							# LenExpr
+				|	'xor' '(' expression ')'							# BitXorExpr
+				|   expression '(' argExprList? ')' lambda?				# CallExpr
+				|   '-' expression										# NegateExpr
+				|   ('~'|'!') expression								# NotExpr
+				|   expression ('*'|'/'|'%') expression					# MultExpr
+				|   expression ('+'|'-') expression						# AddExpr
+				|   expression ('<' '<' | '>' '>' '>' | '>' '>') expression	# ShiftExpr
+				|   expression ('<=' | '>=' | '>' | '<') expression		# CmpExpr
+				|   expression 'instanceof' type						# InstanceOfExpr
+				|   expression ('==' | '!=' | 'is') expression			# EqExpr
+				|   expression '&' expression							# BitAndExpr
+				|   expression '^' expression							# ExpExpr
+				|   expression '|' expression							# BitOrExpr
+				|	expression ':' expression 							# RangeExpr
+				|   expression 'and' expression							# AndExpr
+				|   expression 'or' expression							# OrExpr
+				|   expression 'in' expression							# InExpr
+				|   expression '?' expression ':' expression			# TernaryIfExpr
+				|	expression pipeOperator	expression					# PipeExpr
+				;
+			*/
 	@Override public void exitPrimaryExpr(@NotNull MantraParser.PrimaryExprContext ctx) {
 		ctx.type = ctx.primary().type;
 	}

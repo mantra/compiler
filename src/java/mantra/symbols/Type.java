@@ -25,6 +25,12 @@ public class Type {
 	public static final int DOUBLE = MantraParser.DOUBLE;
 	public static final int STRING = MantraParser.STRING;
 
+	public static final int MAP = MantraParser.STRING;
+	public static final int TREE = MantraParser.TREE;
+	public static final int LIST = MantraParser.LIST;
+	public static final int LLIST = MantraParser.LLIST;
+	public static final int SET = MantraParser.SET;
+
 	public static final int NIL = MantraParser.NIL;
 
 	public static final Type _object = new Type(new TerminalNodeImpl(new CommonToken(MantraParser.ID, "Object")));
@@ -36,17 +42,7 @@ public class Type {
 	public static final Type _long = new Type(new TerminalNodeImpl(new CommonToken(LONG, "long")));
 	public static final Type _float = new Type(new TerminalNodeImpl(new CommonToken(FLOAT, "float")));
 	public static final Type _double = new Type(new TerminalNodeImpl(new CommonToken(DOUBLE, "double")));
-
 	public static final Type _string = new Type(new TerminalNodeImpl(new CommonToken(STRING, "string")));
-
-	// actually no such thing as a predefined type of these, unless we assume list<Object> etc...
-	// must use structural type comparisons unless checking if two types are _int.
-	public static final Type _tuple = new Type(null);
-	public static final Type _func = new Type(null);
-	public static final Type _map = new Type(null);
-	public static final Type _set = new Type(null);
-	public static final Type _list = new Type(null);
-	public static final Type _lambda = new Type(null);
 
 	public static final Type _nil = new Type(new TerminalNodeImpl(new CommonToken(NIL, "nil")));
 
