@@ -290,7 +290,7 @@ locals [Type exprType]
     |   literal
     |   list
     |   map
-    |   set
+    |   set // must appear before ctor to catch set(1,2)
     |   ctor
     |   lambda
     |   ID // string[] could match string here then [] as next statement; keep this as last alt
@@ -325,10 +325,11 @@ locals [Type exprType]
     :   expression '=' expression
     ;
 
-// special case for convenience set(1,2), set<User>(User(), User())
+// special case for convenience set(1,2), set<User>(User(), User()) where we don't need arg names
 set
 locals [Type exprType]
-	:   'set' typeArguments? '(' expression (',' expression)* ')' ;
+	:   'set' typeArguments? '(' (expression (',' expression)*)? ')'
+	;
 
 lambda
  locals [Type exprType]

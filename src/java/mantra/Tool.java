@@ -16,7 +16,9 @@ import mantra.semantics.VerifyListener;
 import org.antlr.v4.runtime.ANTLRFileStream;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
@@ -99,7 +101,9 @@ public class Tool {
 	}
 
 	public void processMantraFile(String fileName) throws IOException {
-		ParseTree tree = parseMantraFile(fileName);
+		Pair<ParseTree,Parser> r = parseMantraFile(fileName);
+		ParseTree tree = r.a;
+		Parser parser = r.b;
 
 		// def scopes and symbols
 		DefScopesAndSymbols def = new DefScopesAndSymbols();
@@ -108,18 +112,18 @@ public class Tool {
 		VerifyListener ref = new VerifyListener();
 		ParseTreeWalker.DEFAULT.walk(ref, tree);
 
-		ComputeExprTypes types = new ComputeExprTypes();
+		ComputeExprTypes types = new ComputeExprTypes(parser);
 		ParseTreeWalker.DEFAULT.walk(types, tree);
 	}
 
-	public ParseTree parseMantraFile(String fileName) throws IOException {
+	public Pair<ParseTree,Parser> parseMantraFile(String fileName) throws IOException {
 		ANTLRInputStream input = new ANTLRFileStream(fileName);
 		MantraLexer lexer = new MantraLexer(input);
 		CommonTokenStream tokens = new CommonTokenStream(lexer);
 		MantraParser parser = new MantraParser(tokens);
 		ParserRuleContext tree = parser.compilationUnit();
 		tree.inspect(parser);
-		return tree;
+		return new Pair<ParseTree,Parser>(tree, parser);
 	}
 
 	// listener / error support

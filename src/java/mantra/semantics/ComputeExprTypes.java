@@ -5,15 +5,20 @@ import mantra.symbols.ClassSymbol;
 import mantra.symbols.EnumSymbol;
 import mantra.symbols.InterfaceSymbol;
 import mantra.symbols.ListType;
+import mantra.symbols.MapType;
+import mantra.symbols.SetType;
 import mantra.symbols.Symbol;
 import mantra.symbols.TupleType;
 import mantra.symbols.Type;
 import mantra.symbols.VariableSymbol;
+import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.xpath.XPath;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /*
@@ -46,6 +51,11 @@ locals [Type exprType]
     ;
  */
 public class ComputeExprTypes extends SetScopeListener {
+	public Parser parser;
+	public ComputeExprTypes(Parser parser) {
+		this.parser = parser;
+	}
+
 	@Override public void exitPrimaryExpr(@NotNull MantraParser.PrimaryExprContext ctx) {
 		ctx.exprType = ctx.primary().exprType;
 	}
@@ -149,6 +159,7 @@ public class ComputeExprTypes extends SetScopeListener {
 		}
 		//var elemTypes = ctx.expression() => { ectx | ectx.exprType }
 		//var elemTypes = apply(ctx.expression(), ectx -> ectx.exprType)
+		// actually ctx.expression().exprType would work in Mantra
 
 		ctx.exprType = new TupleType(ctx, elemTypes);
 	}
@@ -219,14 +230,70 @@ public class ComputeExprTypes extends SetScopeListener {
 		}
 	}
 
+	/*
+	map
+	locals [Type exprType]
+		:   '[' mapElem (',' mapElem)* ']'
+	    ;
+
+	mapElem
+	locals [Type exprType]
+	    :   expression '=' expression
+	    ;
+	 */
 	@Override
 	public void exitMap(@NotNull MantraParser.MapContext ctx) {
-		ctx.exprType = new Type(ctx);
+		Collection<ParseTree> mapElems = XPath.findAll(ctx, "//mapElem", parser);
+		Type key = null;
+		Type value = null;
+		for (ParseTree t : mapElems) {
+			MantraParser.MapElemContext m = (MantraParser.MapElemContext)t;
+			MantraParser.ExpressionContext k = m.expression(0);
+			MantraParser.ExpressionContext v = m.expression(1);
+			if ( key==null ) {
+				key = k.exprType;
+				value = v.exprType;
+			}
+			else if ( !k.exprType.equals(key) ) {
+				// hetero map
+				key = Type._object;
+			}
+			else if ( !v.exprType.equals(value) ) {
+				// hetero map
+				value = Type._object;
+			}
+		}
+		ctx.exprType = new MapType(ctx, key, value);
 	}
 
+	/*
+	set
+	locals [Type exprType]
+		:   'set' typeArguments? '(' (expression (',' expression)*)? ')'
+		;
+	 */
 	@Override
 	public void exitSet(@NotNull MantraParser.SetContext ctx) {
-		ctx.exprType = new Type(ctx);
+		if ( ctx.expression()==null ) {
+			ctx.exprType = Type._object;
+			return;
+		}
+		if ( ctx.typeArguments()!=null ) {
+
+		}
+		List<Type> elemTypes = new ArrayList<Type>();
+		for (MantraParser.ExpressionContext ectx : ctx.expression()) {
+			elemTypes.add(ectx.exprType);
+		}
+		// check they are same
+		Type uniqType = elemTypes.get(0);
+		for (Type t : elemTypes) {
+			if ( !t.equals(uniqType) ) {
+				ctx.exprType = new SetType(ctx, Type._object);
+				return;
+			}
+		}
+		ctx.exprType = new SetType(ctx, uniqType);
 	}
 
 	/*
