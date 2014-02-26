@@ -88,7 +88,7 @@
 	</target>
 
 	<target name="compile" depends="init, antlr4" description="Compile module tool; production classes">
-		<javac destdir="${build}" includeantruntime="false">
+		<javac destdir="${build}" includeantruntime="false" debug="true">
 			<classpath refid="classpath"/>
 			<src path="${src}"/>
 			<src path="${gen}"/>

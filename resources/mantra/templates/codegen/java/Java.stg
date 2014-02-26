@@ -10,4 +10,7 @@ javaTypeInitMap ::= [
 	default:"null" // anything other than a primitive type is an object
 ]
 
-codeFileExtension() ::= ".java"
+MClass(clazz) ::= <<
+public class <clazz.name> {
+}
+>>

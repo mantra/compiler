@@ -5,6 +5,9 @@
  */
 package mantra;
 
+import mantra.codegen.JavaGenerator;
+import mantra.codegen.ModelBuilder;
+import mantra.codegen.model.MClass;
 import mantra.errors.DefaultToolListener;
 import mantra.errors.ErrorManager;
 import mantra.errors.ErrorType;
@@ -23,7 +26,12 @@ import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,15 +61,17 @@ public class Tool {
 	}
 
 	public static Option[] optionDefs = {
-    	new Option("compileOnly",		"-c", OptionArgType.STRING, "compile only"),
+		new Option("compileOnly",		"-c", OptionArgType.STRING, "compile to Java only (default)"),
+		new Option("outputDirectory",	"-d", OptionArgType.STRING, "root directory to generate files"),
 		new Option("warnings_are_errors", "-Werror", "treat warnings as errors"),
 		new Option("msgFormat",			"-message-format", OptionArgType.STRING, "specify output style for messages in mantra, gnu, vs2005"),
 	};
 
 	// option fields
-	protected boolean compileOnly = false;
-	protected boolean warnings_are_errors = false;
-	protected String msgFormat = "mantra";
+	public boolean compileOnly = false;
+	public boolean warnings_are_errors = false;
+	public String msgFormat = "mantra";
+	public String outputDirectory;
 
 	public ErrorManager errMgr;
 
@@ -123,8 +133,12 @@ public class Tool {
 		// Semantic checks
 
 		// Build model of translated code
+		ModelBuilder builder = new ModelBuilder();
+		ParseTreeWalker.DEFAULT.walk(builder, tree);
 
 		// Generate translation, store in file(s)
+		JavaGenerator gen = new JavaGenerator(this);
+		gen.translate((MClass)builder.getModel());
 	}
 
 	public Pair<ParseTree,Parser> parseMantraFile(String fileName) throws IOException {
@@ -135,6 +149,20 @@ public class Tool {
 		ParserRuleContext tree = parser.compilationUnit();
 		tree.inspect(parser);
 		return new Pair<ParseTree,Parser>(tree, parser);
+	}
+
+	public Writer getOutputFileWriter(String fileName) throws IOException {
+		if (outputDirectory == null) {
+			return new StringWriter();
+		}
+
+		File odir = new File(outputDirectory);
+		if (!odir.exists()) {
+			odir.mkdirs();
+		}
+		File outputFile = new File(outputDirectory, fileName);
+		FileWriter fw = new FileWriter(outputFile);
+		return new BufferedWriter(fw);
 	}
 
 	// listener / error support

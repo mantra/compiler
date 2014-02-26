@@ -1,9 +1,9 @@
 package mantra.codegen;
 
-import org.antlr.v4.Tool;
-import org.antlr.v4.codegen.model.ModelElement;
-import org.antlr.v4.codegen.model.OutputModelObject;
-import org.antlr.v4.tool.ErrorType;
+import mantra.Tool;
+import mantra.codegen.model.ModelElement;
+import mantra.codegen.model.OutputModelObject;
+import mantra.errors.ErrorType;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.compiler.FormalArgument;

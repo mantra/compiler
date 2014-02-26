@@ -9,9 +9,14 @@ public enum ErrorType {
 	INTERNAL_ERROR(1, "internal error: <arg> <arg2><if(exception&&verbose)>: <exception>" +
 				   "<stackTrace; separator=\"\\n\"><endif>", ErrorSeverity.ERROR),
 
-	INVALID_CMDLINE_ARG(10, "unknown command-line option '<arg>'", ErrorSeverity.ERROR),
-	CANNOT_WRITE_FILE(11, "cannot write file '<arg>': <arg2>", ErrorSeverity.ERROR),
-	WARNING_TREATED_AS_ERROR(12, "warning treated as error", ErrorSeverity.ERROR_ONE_OFF),
+	INVALID_CMDLINE_ARG(10,				"unknown command-line option '<arg>'", ErrorSeverity.ERROR),
+	CANNOT_WRITE_FILE(11,				"cannot write file '<arg>': <arg2>", ErrorSeverity.ERROR),
+	WARNING_TREATED_AS_ERROR(12,		"warning treated as error", ErrorSeverity.ERROR_ONE_OFF),
+	NO_MODEL_TO_TEMPLATE_MAPPING(13,	"no mapping to template name for output model class '<arg>'", ErrorSeverity.ERROR),
+	CODE_GEN_TEMPLATES_INCOMPLETE(14,	"missing code generation template '<arg>'", ErrorSeverity.ERROR),
+	CODE_TEMPLATE_ARG_ISSUE(15, 		"code generation template '<arg>' has missing, misnamed, or incomplete arg list; missing '<arg2>'", ErrorSeverity.ERROR),
+	STRING_TEMPLATE_WARNING(22, 		"template error: <arg> <arg2><if(exception&&verbose)>: <exception>" +
+				   						"<stackTrace; separator=\"\\n\"><endif>", ErrorSeverity.WARNING),
 
 	// S Y N T A X  E R R O R S
 
