@@ -1,7 +1,7 @@
 package mantra.codegen;
 
 import mantra.Tool;
-import mantra.codegen.model.ModelElement;
+import mantra.codegen.model.NestedModel;
 import mantra.codegen.model.OutputModelObject;
 import mantra.errors.ErrorType;
 import org.stringtemplate.v4.ST;
@@ -25,7 +25,7 @@ import java.util.Set;
  *
  *  The first template argument is always the output model object from which
  *  this walker will create the template. Any other arguments identify
- *  the field names marked with @ModelElement within the output model object
+ *  the field names marked with @NestedModel within the output model object
  *  and nested model objects.
  *
  *  This simple mechanism means we don't have to include code in every
@@ -66,11 +66,11 @@ public class OutputModelWalker {
 		String modelArgName = arg_it.next(); // ordered so this is first arg
 		st.add(modelArgName, omo);
 
-		// COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH @ModelElement AND MAKE ST ATTRIBUTE
+		// COMPUTE STs FOR EACH NESTED MODEL OBJECT MARKED WITH @NestedModel AND MAKE ST ATTRIBUTE
 		Set<String> usedFieldNames = new HashSet<String>();
 		Field fields[] = cl.getFields();
 		for (Field fi : fields) {
-			ModelElement annotation = fi.getAnnotation(ModelElement.class);
+			NestedModel annotation = fi.getAnnotation(NestedModel.class);
 			if (annotation == null) {
 				continue;
 			}
@@ -82,7 +82,7 @@ public class OutputModelWalker {
 				continue;
 			}
 
-			// Just don't set @ModelElement fields w/o formal arg in target ST
+			// Just don't set @NestedModel fields w/o formal arg in target ST
 			if ( formalArgs.get(fieldName)==null ) continue;
 
 			try {
@@ -90,7 +90,7 @@ public class OutputModelWalker {
 				if ( o instanceof OutputModelObject ) {  // SINGLE MODEL OBJECT?
 					OutputModelObject nestedOmo = (OutputModelObject)o;
 					ST nestedST = walk(nestedOmo);
-//					System.out.println("set ModelElement "+fieldName+"="+nestedST+" in "+templateName);
+//					System.out.println("set NestedModel "+fieldName+"="+nestedST+" in "+templateName);
 					st.add(fieldName, nestedST);
 				}
 				else if ( o instanceof Collection || o instanceof OutputModelObject[] ) {
@@ -102,7 +102,7 @@ public class OutputModelWalker {
 					for (Object nestedOmo : nestedOmos) {
 						if ( nestedOmo==null ) continue;
 						ST nestedST = walk((OutputModelObject)nestedOmo);
-//						System.out.println("set ModelElement "+fieldName+"="+nestedST+" in "+templateName);
+//						System.out.println("set NestedModel "+fieldName+"="+nestedST+" in "+templateName);
 						st.add(fieldName, nestedST);
 					}
 				}
@@ -111,7 +111,7 @@ public class OutputModelWalker {
 					Map<Object, ST> m = new HashMap<Object, ST>();
 					for (Map.Entry<?, ?> entry : nestedOmoMap.entrySet()) {
 						ST nestedST = walk((OutputModelObject)entry.getValue());
-//						System.out.println("set ModelElement "+fieldName+"="+nestedST+" in "+templateName);
+//						System.out.println("set NestedModel "+fieldName+"="+nestedST+" in "+templateName);
 						m.put(entry.getKey(), nestedST);
 					}
 					st.add(fieldName, m);
