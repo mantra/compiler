@@ -1,6 +1,8 @@
 package mantra.semantics;
 
 import mantra.MantraBaseListener;
+import static mantra.MantraParser.*;
+
 import mantra.MantraParser;
 import mantra.symbols.BaseScope;
 import mantra.symbols.BlockScope;
@@ -12,18 +14,11 @@ import mantra.symbols.PackageSymbol;
 import mantra.symbols.Scope;
 import mantra.symbols.Type;
 import mantra.symbols.VariableSymbol;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
 
-import static mantra.MantraParser.BlockContext;
-import static mantra.MantraParser.ClazzContext;
-import static mantra.MantraParser.CompilationUnitContext;
-import static mantra.MantraParser.EnumDefContext;
-import static mantra.MantraParser.FunctionHeadContext;
-import static mantra.MantraParser.InterfazeContext;
-import static mantra.MantraParser.PackageDefContext;
-import static mantra.MantraParser.TypespecContext;
 import static mantra.symbols.GlobalScope.GLOBALS;
 
 /** Create scope tree and def symbols in Scopes
@@ -96,14 +91,14 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 
 	@Override
 	public void enterFunctionHead(@NotNull FunctionHeadContext ctx) {
-		FunctionSymbol s = new FunctionSymbol(currentScope, ctx.name.getText(), null);
+		FunctionSymbol s = new FunctionSymbol(currentScope, ctx.ID().getText(), null);
 		currentScope.define(s);
 		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 
 	@Override
-	public void exitFunction(@NotNull MantraParser.FunctionContext ctx) {
+	public void exitFunction(@NotNull FunctionContext ctx) {
 		exitScope();
 	}
 
@@ -130,45 +125,62 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 
 	// DEFINE SYMBOLS
 
+	@Override
+	public void enterVarField(@NotNull VarFieldContext ctx) {
+		defineVarWithType(ctx);
+	}
 
 	@Override
-	public void enterArgDef(@NotNull MantraParser.ArgDefContext ctx) {
-		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(0);
+	public void enterValField(@NotNull ValFieldContext ctx) {
+		DeclContext d = ctx.getRuleContext(DeclContext.class, 0);
 		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.typespec()));
+		s.isConstant = true;
 		currentScope.define(s);
 	}
 
 	@Override
-	public void enterVarDeclWithType(@NotNull MantraParser.VarDeclWithTypeContext ctx) {
-		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.typespec()));
-		currentScope.define(s);
+	public void enterArgDef(@NotNull ArgDefContext ctx) {
+		defineVarWithType(ctx);
 	}
 
 	@Override
-	public void enterVarDeclNoType(@NotNull MantraParser.VarDeclNoTypeContext ctx) {
+	public void enterVarDeclWithType(@NotNull VarDeclWithTypeContext ctx) {
+		defineVarWithType(ctx);
+	}
+
+	@Override
+	public void enterVarDeclNoType(@NotNull VarDeclNoTypeContext ctx) {
 		VariableSymbol s = new VariableSymbol(currentScope, ctx.name.getText(), null);
 		currentScope.define(s);
 	}
 
 	@Override
-	public void enterMultiVarDeclNoType(@NotNull MantraParser.MultiVarDeclNoTypeContext ctx) {
+	public void enterMultiVarDeclNoType(@NotNull MultiVarDeclNoTypeContext ctx) {
 		for (Token t : ctx.names) {
 			VariableSymbol s = new VariableSymbol(currentScope, t.getText(), null);
 			currentScope.define(s);
 		}
 	}
 
+	// TODO go back and compute types for these fields
+
 	@Override
-	public void enterValDeclNoType(@NotNull MantraParser.ValDeclNoTypeContext ctx) {
+	public void enterValDeclNoType(@NotNull ValDeclNoTypeContext ctx) {
 		VariableSymbol s = new VariableSymbol(currentScope, ctx.name.getText(), null);
 		currentScope.define(s);
 	}
 
 	@Override
-	public void enterValDeclWithType(@NotNull MantraParser.ValDeclWithTypeContext ctx) {
-		MantraParser.DeclContext d = (MantraParser.DeclContext)ctx.getChild(1);
-		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(), new Type(d.typespec()));
+	public void enterValDeclWithType(@NotNull ValDeclWithTypeContext ctx) {
+		defineVarWithType(ctx);
+	}
+
+	// SUPPORT
+
+	public void defineVarWithType(ParserRuleContext ctx) {
+		DeclContext d = ctx.getRuleContext(DeclContext.class, 0);
+		VariableSymbol s = new VariableSymbol(currentScope, d.name.getText(),
+											  new Type(d.typespec()));
 		currentScope.define(s);
 	}
 }

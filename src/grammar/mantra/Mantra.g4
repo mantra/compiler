@@ -51,9 +51,9 @@ clazzMember
     |   enumDef
     ;
 
-field:  ('static'|'api')? vardecl
+field:  ('static'|'api')? 'var' decl ('=' expression)?		# VarField
 // 	|	'api'? propdecl
- 	|	'api'? valdecl
+ 	|	'api'? 'val' decl '=' expression					# ValField
  	;
 
 commands : stat+ ;
@@ -68,7 +68,7 @@ function
 
 functionHead
 locals [Scope scope]
-    :   'def' name=ID functionSignature
+    :   'def' ID functionSignature
     ;
 
 functionSignature

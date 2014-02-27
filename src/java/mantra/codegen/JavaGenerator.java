@@ -3,6 +3,7 @@ package mantra.codegen;
 import mantra.Tool;
 import mantra.codegen.model.MFile;
 import mantra.errors.ErrorType;
+import mantra.symbols.Type;
 import org.stringtemplate.v4.NumberRenderer;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STErrorListener;
@@ -54,5 +55,9 @@ public class JavaGenerator {
 		});
 
 		return result;
+	}
+
+	public static String asJavaType(Type mtype) {
+		return mtype.toString();
 	}
 }

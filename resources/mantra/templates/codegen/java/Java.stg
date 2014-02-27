@@ -17,9 +17,20 @@ package <file.packageName>;
 <aggregate>
 >>
 
-MClass(clazz) ::= <<
+MClass(clazz, members) ::= <<
 public class <clazz.name> {
 	public static _mantraMetaData =
 		"";
+
+	<members; separator="\n">
+}
+>>
+
+MField(f) ::= <<
+public <f.javaType> <f.name>;
+>>
+
+MMethod(m) ::= <<
+public <m.name>() {
 }
 >>

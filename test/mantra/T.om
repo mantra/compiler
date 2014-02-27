@@ -2,17 +2,15 @@ package test
 
 class T extends A implements X, Y {
 	var ff : int
+	var i : float[]
+	var j : func<(int):float>
 	def f(x:int) : float {
-		var i : float[]
-		var j : func<(int):float>
-		var k,l = (3,j)
-		val m = 2
 		val n : int = m
 		x[i] = ff
 		var k : T
 		return x*2.0+a.b.c
 		var z = Button("foo")
-		var z1 = ['a', 'b', 'c']
+		var z2 = ['a', 'b', 'c']
 		var z2 = [1, 2, 3]
 		var z3 = ["parrt", 2]
 		var z4 = ["parrt"=2, "foo"=4]

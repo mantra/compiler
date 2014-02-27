@@ -10,7 +10,7 @@ public class FunctionSymbol extends ScopedSymbol {
 		this.retType = retType;
     }
 
-    public String getName() {
+    public String toString() {
         return name+"("+ Utils.stripBrackets(symbols.keySet().toString())+")";
     }
 }

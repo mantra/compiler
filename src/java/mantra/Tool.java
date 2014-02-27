@@ -133,7 +133,7 @@ public class Tool {
 		// Semantic checks
 
 		// Build model of translated code
-		ModelBuilder builder = new ModelBuilder(this, tree, fileName);
+		ModelBuilder builder = new ModelBuilder(this, tree, parser, fileName);
 		ParseTreeWalker.DEFAULT.walk(builder, tree);
 
 		// Generate translation, store in file
