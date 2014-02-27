@@ -10,6 +10,13 @@ javaTypeInitMap ::= [
 	default:"null" // anything other than a primitive type is an object
 ]
 
+MFile(file, aggregate) ::= <<
+// Generated from <file.mantraFileName>
+package <file.packageName>;
+
+<aggregate>
+>>
+
 MClass(clazz) ::= <<
 public class <clazz.name> {
 }

@@ -7,7 +7,7 @@ package mantra;
 
 import mantra.codegen.JavaGenerator;
 import mantra.codegen.ModelBuilder;
-import mantra.codegen.model.MClass;
+import mantra.codegen.model.MFile;
 import mantra.errors.DefaultToolListener;
 import mantra.errors.ErrorManager;
 import mantra.errors.ErrorType;
@@ -133,12 +133,12 @@ public class Tool {
 		// Semantic checks
 
 		// Build model of translated code
-		ModelBuilder builder = new ModelBuilder();
+		ModelBuilder builder = new ModelBuilder(this, fileName);
 		ParseTreeWalker.DEFAULT.walk(builder, tree);
 
 		// Generate translation, store in file(s)
 		JavaGenerator gen = new JavaGenerator(this);
-		gen.translate((MClass)builder.getModel());
+		gen.translate((MFile)builder.getModel());
 	}
 
 	public Pair<ParseTree,Parser> parseMantraFile(String fileName) throws IOException {

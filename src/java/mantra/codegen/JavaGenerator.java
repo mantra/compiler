@@ -1,7 +1,7 @@
 package mantra.codegen;
 
 import mantra.Tool;
-import mantra.codegen.model.MClass;
+import mantra.codegen.model.MFile;
 import mantra.errors.ErrorType;
 import org.stringtemplate.v4.NumberRenderer;
 import org.stringtemplate.v4.ST;
@@ -18,9 +18,9 @@ public class JavaGenerator {
 
 	public JavaGenerator(Tool tool) { this.tool = tool; templates = loadTemplates(); }
 
-	public void translate(MClass o) {
+	public void translate(MFile file) {
 		OutputModelWalker walker = new OutputModelWalker(tool, templates);
-		ST st = walker.walk(o);
+		ST st = walker.walk(file);
 		System.out.println(st.render());
 	}
 
