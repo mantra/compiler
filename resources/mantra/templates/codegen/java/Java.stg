@@ -19,5 +19,7 @@ package <file.packageName>;
 
 MClass(clazz) ::= <<
 public class <clazz.name> {
+	public static _mantraMetaData =
+		"";
 }
 >>

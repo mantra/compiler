@@ -18,10 +18,9 @@ public class JavaGenerator {
 
 	public JavaGenerator(Tool tool) { this.tool = tool; templates = loadTemplates(); }
 
-	public void translate(MFile file) {
+	public ST translate(MFile file) {
 		OutputModelWalker walker = new OutputModelWalker(tool, templates);
-		ST st = walker.walk(file);
-		System.out.println(st.render());
+		return walker.walk(file);
 	}
 
 	public STGroup loadTemplates() {

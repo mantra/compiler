@@ -7,7 +7,6 @@ package mantra;
 
 import mantra.codegen.JavaGenerator;
 import mantra.codegen.ModelBuilder;
-import mantra.codegen.model.MFile;
 import mantra.errors.DefaultToolListener;
 import mantra.errors.ErrorManager;
 import mantra.errors.ErrorType;
@@ -25,6 +24,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Pair;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.stringtemplate.v4.ST;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -133,12 +133,13 @@ public class Tool {
 		// Semantic checks
 
 		// Build model of translated code
-		ModelBuilder builder = new ModelBuilder(this, fileName);
+		ModelBuilder builder = new ModelBuilder(this, tree, fileName);
 		ParseTreeWalker.DEFAULT.walk(builder, tree);
 
-		// Generate translation, store in file(s)
+		// Generate translation, store in file
 		JavaGenerator gen = new JavaGenerator(this);
-		gen.translate((MFile)builder.getModel());
+		ST st = gen.translate(builder.getModel());
+		System.out.println(st.render());
 	}
 
 	public Pair<ParseTree,Parser> parseMantraFile(String fileName) throws IOException {
