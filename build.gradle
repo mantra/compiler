@@ -1,0 +1,48 @@
+apply plugin:"java"
+
+repositories {
+  mavenCentral() 
+}
+
+dependencies {
+  compile 'org.antlr:antlr4:4.2'
+  compile 'org.antlr:ST4:4.0.7'
+}
+
+task generateParser(type: AntlrTask) {
+  pkg = "mantra"
+  generatedJavaFiles = [file(destinationDir+"MantraParser.java"), file(destinationDir+"MantraLexer.java"),
+    file(destinationDir+"MantraBaseListener.java"), file(destinationDir+"MantraListener.java")]
+  grammarSource = file('src/grammar/mantra/Mantra.g4')
+  toolClasspath = configurations.compile
+}
+
+class AntlrTask extends DefaultTask {
+  def destinationDir = "src/gen/"
+  @OutputFiles
+  def generatedJavaFiles
+
+  @InputFile
+  def grammarSource
+  
+  def toolClasspath
+  def antlrTool = 'org.antlr.v4.Tool'
+  def pkg
+  
+  @TaskAction
+  def runAntlr() {
+    project.javaexec {
+        main = antlrTool
+        classpath = toolClasspath
+        workingDir = destinationDir
+        args = ["-o", pkg, "-package", pkg, "-listener", grammarSource]
+      }
+  }
+}
+
+compileJava {
+  dependsOn generateParser
+  source = [fileTree(generateParser.destinationDir).include('**/*.java'), fileTree('src/java').include('**/*.java')]
+}
+
+task wrapper(type:Wrapper)
