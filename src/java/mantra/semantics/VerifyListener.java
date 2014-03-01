@@ -29,11 +29,6 @@ public class VerifyListener extends SetScopeListener {
 	}
 
 	@Override
-	public void enterFunctionHead(@NotNull MantraParser.FunctionHeadContext ctx) {
-		super.enterFunctionHead(ctx);
-	}
-
-	@Override
 	public void enterCatchType(@NotNull MantraParser.CatchTypeContext ctx) {
 	}
 

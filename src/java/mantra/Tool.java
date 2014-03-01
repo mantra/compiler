@@ -117,7 +117,7 @@ public class Tool {
 		Parser parser = r.b;
 
 		// def scopes and symbols
-		DefScopesAndSymbols def = new DefScopesAndSymbols();
+		DefScopesAndSymbols def = new DefScopesAndSymbols(this, tree, parser);
 		ParseTreeWalker.DEFAULT.walk(def, tree);
 
 		VerifyListener ref = new VerifyListener();

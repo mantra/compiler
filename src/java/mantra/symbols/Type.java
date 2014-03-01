@@ -12,6 +12,9 @@ import java.util.Set;
 
 /** Represents all possible type trees like simple int, int[10],
  *  list<string>, and func<(int):float>[10].
+ *
+ *  Used only in expressions, not in function definitions, for example.
+ *  Class and function definitions get their info stored in XSymbol objects.
  */
 public class Type {
 	public static final Type INVALID = new Type(null);
@@ -30,6 +33,8 @@ public class Type {
 	public static final int LIST = MantraParser.LIST;
 	public static final int LLIST = MantraParser.LLIST;
 	public static final int SET = MantraParser.SET;
+	public static final int MATRIX = MantraParser.MATRIX;
+	public static final int VECTOR = MantraParser.VECTOR;
 
 	public static final int NIL = MantraParser.NIL;
 
@@ -112,16 +117,42 @@ public class Type {
 			add(FLOAT);
 			add(DOUBLE);
 		}};
-		for (int aop : arithmeticOps) {
+		Set<Integer> matrixOps = new HashSet<Integer>() {{
+			add(MantraParser.ADD);
+			add(MantraParser.SUB);
+			add(MantraParser.MUL);
+		}};
+		Set<Integer> vectorOps = new HashSet<Integer>() {{
+			add(MantraParser.ADD);
+			add(MantraParser.SUB);
+		}};
+		for (int op : arithmeticOps) {
 			for (int type : arithmeticTypes) {
-				resultTypes.put(opkey(type, aop, type), type);
+				resultTypes.put(opkey(type, op, type), type);
 			}
 		}
-		for (int rop : relationalOps) {
+		for (int op : matrixOps) {
+			resultTypes.put(opkey(MATRIX, op, MATRIX), MATRIX);
+		}
+		for (int op : vectorOps) {
+			resultTypes.put(opkey(VECTOR, op, VECTOR), VECTOR);
+		}
+		for (int op : matrixOps) { // scalar by vec or matrix
 			for (int type : arithmeticTypes) {
-				resultTypes.put(opkey(type, rop, type), BOOLEAN);
+				resultTypes.put(opkey(type, op, MATRIX), MATRIX);
+				resultTypes.put(opkey(MATRIX, op, type), MATRIX);
+				resultTypes.put(opkey(type, op, VECTOR), VECTOR);
+				resultTypes.put(opkey(VECTOR, op, type), VECTOR);
 			}
-			resultTypes.put(opkey(STRING, rop, STRING), BOOLEAN);
+		}
+		resultTypes.put(opkey(MATRIX, MantraParser.MUL, VECTOR), VECTOR);
+		resultTypes.put(opkey(VECTOR, MantraParser.MUL, MATRIX), VECTOR);
+
+		for (int op : relationalOps) {
+			for (int type : arithmeticTypes) {
+				resultTypes.put(opkey(type, op, type), BOOLEAN);
+			}
+			resultTypes.put(opkey(STRING, op, STRING), BOOLEAN);
 		}
 	}
 

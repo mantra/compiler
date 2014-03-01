@@ -63,11 +63,11 @@ memberFunction
 	;
 
 function
+locals [Scope scope]
     :   functionHead block
     ;
 
 functionHead
-locals [Scope scope]
     :   'def' ID functionSignature
     ;
 
@@ -193,6 +193,8 @@ returns [Type type]
 		|	'list'
 		|	'llist'
 		|	'set'
+		|	'vector'
+		|	'matrix'
 		)
 		typeArguments?
 	;
@@ -431,6 +433,8 @@ TREE : 'tree' ;
 TRY : 'try';
 WHILE : 'while';
 VAR : 'var' ;
+VECTOR : 'vector' ;
+MATRIX : 'matrix' ;
 VOID : 'void' ;
 XOR : 'xor' ;
 

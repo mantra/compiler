@@ -1,8 +1,11 @@
 apply plugin:"java"
+apply plugin:'application'
 
 repositories {
-  mavenCentral() 
+  mavenCentral()
 }
+
+mainClassName = "mantra.Tool"
 
 dependencies {
   compile 'org.antlr:antlr4:4.2'
@@ -24,11 +27,11 @@ class AntlrTask extends DefaultTask {
 
   @InputFile
   def grammarSource
-  
+
   def toolClasspath
   def antlrTool = 'org.antlr.v4.Tool'
   def pkg
-  
+
   @TaskAction
   def runAntlr() {
     project.javaexec {

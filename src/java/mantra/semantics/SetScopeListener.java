@@ -53,7 +53,7 @@ public class SetScopeListener extends MantraBaseListener {
 	}
 
 	@Override
-	public void enterFunctionHead(@NotNull MantraParser.FunctionHeadContext ctx) {
+	public void enterFunction(@NotNull MantraParser.FunctionContext ctx) {
 		currentScope = ctx.scope; // pick up scope
 	}
 

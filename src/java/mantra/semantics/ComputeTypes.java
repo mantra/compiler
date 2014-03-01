@@ -1,8 +1,10 @@
 package mantra.semantics;
 
 import mantra.MantraParser;
+import mantra.symbols.Arg;
 import mantra.symbols.ClassSymbol;
 import mantra.symbols.EnumSymbol;
+import mantra.symbols.FuncType;
 import mantra.symbols.InstanceType;
 import mantra.symbols.InterfaceSymbol;
 import mantra.symbols.InterfaceType;
@@ -43,14 +45,14 @@ public class ComputeTypes extends SetScopeListener {
 	}
 
 	/*
-	coreType
-	returns [Type type]
-		:	classOrInterfaceType
-	    |	builtInType
-	    |	tupleType
-		|   functionType
-		;
-	 */
+		coreType
+		returns [Type type]
+			:	classOrInterfaceType
+			|	builtInType
+			|	tupleType
+			|   functionType
+			;
+		 */
 	@Override
 	public void exitCoreType(@NotNull MantraParser.CoreTypeContext ctx) {
 		if ( ctx.classOrInterfaceType()!=null ) {

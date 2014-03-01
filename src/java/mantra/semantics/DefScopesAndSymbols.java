@@ -4,20 +4,28 @@ import mantra.MantraBaseListener;
 import static mantra.MantraParser.*;
 
 import mantra.MantraParser;
+import mantra.Tool;
+import mantra.symbols.Arg;
 import mantra.symbols.BaseScope;
 import mantra.symbols.BlockScope;
 import mantra.symbols.ClassSymbol;
 import mantra.symbols.EnumSymbol;
+import mantra.symbols.FuncType;
 import mantra.symbols.FunctionSymbol;
 import mantra.symbols.InterfaceSymbol;
 import mantra.symbols.PackageSymbol;
 import mantra.symbols.Scope;
 import mantra.symbols.Type;
 import mantra.symbols.VariableSymbol;
+import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.misc.NotNull;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.xpath.XPath;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static mantra.symbols.GlobalScope.GLOBALS;
 
@@ -27,7 +35,17 @@ import static mantra.symbols.GlobalScope.GLOBALS;
  *  Symbol defs are: package, class, interface, enum, function, arg, field, var, val
  */
 public class DefScopesAndSymbols extends MantraBaseListener {
+	public Tool tool;
+	public ParseTree tree;
+	public Parser parser;
+
 	public Scope currentScope = GLOBALS;  // start out in global scope
+
+	public DefScopesAndSymbols(Tool tool, ParseTree tree, Parser parser) {
+		this.tool = tool;
+		this.tree = tree;
+		this.parser = parser;
+	}
 
 	// DEFINE SCOPES
 
@@ -89,16 +107,54 @@ public class DefScopesAndSymbols extends MantraBaseListener {
 		exitScope();
 	}
 
+		/*
+	function
+	    :   functionHead block
+	    ;
+
+	functionHead
+	locals [Scope scope]
+	    :   'def' ID functionSignature
+	    ;
+
+	functionSignature
+	    :   '(' argList? ')' (':' typespec)?
+	    ;
+
+	argList
+	    :   argDef (',' argDef)*
+	    ;
+
+	argDef
+	    :   decl ('=' expression)?  // const exprs
+	    ;
+	 */
+
 	@Override
-	public void enterFunctionHead(@NotNull FunctionHeadContext ctx) {
-		FunctionSymbol s = new FunctionSymbol(currentScope, ctx.ID().getText(), null);
+	public void enterFunction(@NotNull FunctionContext ctx) {
+		FunctionHeadContext fhead =
+			(FunctionHeadContext)XPath.findAll(ctx, "//functionHead", parser).iterator().next();
+		ArgListContext argList =
+			(ArgListContext)XPath.findAll(ctx, "//argList", parser).iterator().next();
+		Type retType = null;
+		List<Arg> args = new ArrayList<Arg>();
+		for (ArgDefContext a : argList.argDef()) {
+			String name = a.decl().ID().getText();
+			Type type = a.decl().typespec().type;
+			ExpressionContext defExpr = a.expression();
+			args.add(new Arg(name, type, defExpr));
+		}
+		FunctionSymbol s = new FunctionSymbol(currentScope,
+											  fhead.ID().getText(),
+											  args,
+											  retType);
 		currentScope.define(s);
 		ctx.scope = s; // record scope in parse tree
 		enterScope(s);
 	}
 
 	@Override
-	public void exitFunction(@NotNull FunctionContext ctx) {
+	public void exitFunction(@NotNull MantraParser.FunctionContext ctx) {
 		exitScope();
 	}
 
